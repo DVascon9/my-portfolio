@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dvascon_Productions</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+body {
+  font-family: sans-serif;
+  background:#0b0b0b;
+  color:white;
+  padding:1rem;
+}
+
+.grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:1.25rem;
+}
+
+.card {
+  position:relative;
+  border-radius:12px;
+  overflow:hidden;
+  text-decoration:none;
+  color:white;
+  transform:scale(1);
+  transition:transform .25s ease;
+}
+
+.card:hover {
+  transform:scale(1.03);
+}
+
+.card img {
+  width:100%;
+  height:220px;
+  object-fit:cover;
+  display:block;
+}
+
+.card-title {
+  position:absolute;
+  bottom:0;
+  width:100%;
+  padding:.75rem;
+  background:linear-gradient(to top, rgba(0,0,0,.8), transparent);
+  font-weight:600;
+  text-transform:capitalize;
+}
+</style>
+
+<script>
+const supabaseClient = supabase.createClient(
+  "https://whnxaenjjzemzfxpnlrq.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndobnhhZW5qanplbXpmeHBubHJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5MzIxODYsImV4cCI6MjA4NDUwODE4Nn0.4iRX0FV-YKVQv1cC9-iZ6J3oebRVvJEYcP7kaIhU-d4"
+);
+
+function formatTitle(name){
+  return name.replace(/-/g," ");
+}
+</script>
+</head>
+
+<body>
+<h1>Dvascon_Productions</h1>
+<h2>Photo Galleries</h2>
+
+<div class="grid" id="galleries"></div>
+
+<script>
+async function loadGalleries(){
+  const { data: folders } = await supabaseClient
+    .storage.from("galleries").list("");
+
+  const container = document.getElementById("galleries");
+
+  for (const folder of folders){
+    const { data: files } = await supabaseClient
+      .storage.from("galleries").list(folder.name,{ limit:1 });
+
+    if (!files || !files[0]) continue;
+
+    const { data:url } = supabaseClient.storage
+      .from("galleries")
+      .getPublicUrl(`${folder.name}/${files[0].name}`);
+
+    const card = document.createElement("a");
+    card.href = `gallery.html?g=${folder.name}`;
+    card.className="card";
+    card.innerHTML = `
+      <img src="${url.publicUrl}">
+      <div class="card-title">${formatTitle(folder.name)}</div>
+    `;
+    container.appendChild(card);
+  }
+}
+
+loadGalleries();
+</script>
+</body>
+</html>
