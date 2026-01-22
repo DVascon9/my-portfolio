@@ -63,13 +63,46 @@ function formatTitle(name){
   return name.replace(/-/g," ");
 }
 </script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg-dark: #05060A;
+  --bg-soft: #0B1020;
+  --accent-blue: #38BDF8;
+  --accent-pink: #EC4899;
+  --text-main: #E5E7EB;
+  --text-muted: #9CA3AF;
+}
+
+
+body {
+  background:
+    radial-gradient(circle at top right, rgba(236,72,153,.15), transparent 45%),
+    radial-gradient(circle at bottom left, rgba(56,189,248,.15), transparent 45%),
+    var(--bg-dark);
+  color: var(--text-main);
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+}
+
+h1, h2 {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+p {
+  color: var(--text-muted);
+}
+
+</style>
 </head>
 
 <body>
-<h1>Dvascon_Productions</h1>
-<h2>Photo Galleries</h2>
-
+<h1 class="glow-pink">Dvascon_Productions</h1>
+<h2 class="glow-blue">Photo Galleries</h2>
 <div class="grid" id="galleries"></div>
+
 
 <script>
 async function loadGalleries(){

@@ -104,7 +104,39 @@ const supabaseClient = supabase.createClient(
   "https://whnxaenjjzemzfxpnlrq.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndobnhhZW5qanplbXpmeHBubHJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5MzIxODYsImV4cCI6MjA4NDUwODE4Nn0.4iRX0FV-YKVQv1cC9-iZ6J3oebRVvJEYcP7kaIhU-d4");
 </script>
-</head>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg-dark: #05060A;
+  --bg-soft: #0B1020;
+  --accent-blue: #38BDF8;
+  --accent-pink: #EC4899;
+  --text-main: #E5E7EB;
+  --text-muted: #9CA3AF;
+}
+
+
+body {
+  background:
+    radial-gradient(circle at top right, rgba(236,72,153,.15), transparent 45%),
+    radial-gradient(circle at bottom left, rgba(56,189,248,.15), transparent 45%),
+    var(--bg-dark);
+  color: var(--text-main);
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+}
+
+h1, h2 {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+p {
+  color: var(--text-muted);
+}
+
+</style></head>
 
 <body>
 <a class="back" href="index.html">← Back</a>
