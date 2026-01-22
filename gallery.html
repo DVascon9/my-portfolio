@@ -1,4 +1,4 @@
-t <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -31,22 +31,29 @@ body {
   column-gap:1rem;
 }
 
-/* Animated entrance */
+/* Image card */
 .grid img {
   width:100%;
   margin-bottom:1rem;
-  border-radius:8px;
+  border-radius:10px;
   cursor:pointer;
   opacity:0;
   transform:translateY(20px);
   animation:fadeUp .5s ease forwards;
+  transition:transform .25s ease, box-shadow .25s ease;
+}
+
+/* Hover pop */
+.grid img:hover {
+  transform:scale(1.03);
+  box-shadow:0 12px 30px rgba(0,0,0,.4);
 }
 
 @keyframes fadeUp {
   to { opacity:1; transform:none; }
 }
 
-/* POPUP OVERLAY */
+/* Overlay popup */
 #overlay {
   position:fixed;
   inset:0;
@@ -95,8 +102,7 @@ body {
 <script>
 const supabaseClient = supabase.createClient(
   "https://whnxaenjjzemzfxpnlrq.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndobnhhZW5qanplbXpmeHBubHJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5MzIxODYsImV4cCI6MjA4NDUwODE4Nn0.4iRX0FV-YKVQv1cC9-iZ6J3oebRVvJEYcP7kaIhU-d4"
-);
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndobnhhZW5qanplbXpmeHBubHJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5MzIxODYsImV4cCI6MjA4NDUwODE4Nn0.4iRX0FV-YKVQv1cC9-iZ6J3oebRVvJEYcP7kaIhU-d4");
 </script>
 </head>
 
@@ -126,10 +132,25 @@ let images = [];
 let currentIndex = 0;
 let touchStartX = 0;
 
+/* 📊 TRACK GALLERY VIEW */
+supabaseClient
+  .from("gallery_views")
+  .insert([{ gallery: galleryName }]);
+
+/* ⚡ PRELOAD */
+function preload(index) {
+  [index-1, index+1].forEach(i => {
+    if (images[i]) {
+      const img = new Image();
+      img.src = images[i];
+    }
+  });
+}
+
 /* LOAD IMAGES */
 async function loadImages(){
   const { data } = await supabaseClient
-    .storage.from("galleries").list(galleryName,{ limit:200 });
+    .storage.from("galleries").list(galleryName,{ limit:300 });
 
   data.forEach((file,i)=>{
     if(!file.name.match(/\.(jpg|jpeg|png|webp)$/i)) return;
@@ -150,9 +171,10 @@ async function loadImages(){
   });
 }
 
-function openPopup(index){
-  currentIndex = index;
+function openPopup(i){
+  currentIndex = i;
   updatePopup();
+  preload(currentIndex);
   overlay.classList.add("active");
 }
 
@@ -165,12 +187,12 @@ function closePopup(){
   overlay.classList.remove("active");
 }
 
-/* CLICK OUTSIDE TO CLOSE */
+/* CLICK OUTSIDE */
 overlay.onclick = e => {
   if(e.target === overlay) closePopup();
 };
 
-/* SWIPE SUPPORT */
+/* SWIPE */
 popupImg.addEventListener("touchstart", e => {
   touchStartX = e.touches[0].clientX;
 });
@@ -181,10 +203,9 @@ popupImg.addEventListener("touchend", e => {
   if (dx < -50) nextImage();
 });
 
-/* KEYBOARD NAVIGATION */
+/* KEYBOARD */
 document.addEventListener("keydown", e => {
   if (!overlay.classList.contains("active")) return;
-
   if (e.key === "ArrowRight") nextImage();
   if (e.key === "ArrowLeft") prevImage();
   if (e.key === "Escape") closePopup();
@@ -193,11 +214,13 @@ document.addEventListener("keydown", e => {
 function nextImage(){
   currentIndex = (currentIndex + 1) % images.length;
   updatePopup();
+  preload(currentIndex);
 }
 
 function prevImage(){
   currentIndex = (currentIndex - 1 + images.length) % images.length;
   updatePopup();
+  preload(currentIndex);
 }
 
 loadImages();
