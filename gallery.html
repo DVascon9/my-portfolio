@@ -5,7 +5,6 @@
   <title>Gallery</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
@@ -38,7 +37,7 @@
       column-gap: 1rem;
     }
 
-    img {
+    .grid img {
       width: 100%;
       margin-bottom: 1rem;
       border-radius: 10px;
@@ -46,30 +45,61 @@
       transition: transform .2s ease, box-shadow .2s ease;
     }
 
-    img:hover {
-      transform: scale(1.02);
+    .grid img:hover {
+      transform: scale(1.03);
       box-shadow: 0 10px 25px rgba(0,0,0,.6);
     }
 
-    /* Popup */
-    .overlay {
+    /* Lightbox */
+    .lightbox {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,.8);
-      display: none;
+      background: rgba(0,0,0,.85);
+      display: flex;
       align-items: center;
       justify-content: center;
+      z-index: 1000;
     }
 
-    .overlay img {
-      max-width: 90%;
-      max-height: 85%;
+    .lightbox.hidden {
+      display: none;
+    }
+
+    .lightbox-content {
+      max-width: 85vw;
+      max-height: 85vh;
+      animation: popIn .25s ease;
+    }
+
+    .lightbox-content img {
+      max-width: 100%;
+      max-height: 100%;
       border-radius: 14px;
-      animation: fadeIn .25s ease;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(.96); }
+    .lightbox-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: .75rem;
+    }
+
+    .lightbox-actions a,
+    .lightbox-actions button {
+      background: #1e293b;
+      color: white;
+      padding: .5rem .9rem;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .lightbox-actions button {
+      background: #7f1d1d;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(.92); }
       to { opacity: 1; transform: scale(1); }
     }
   </style>
@@ -77,58 +107,81 @@
 
 <body>
 
-  <a class="back" href="index.html">← Back</a>
-  <h1 id="title"></h1>
+<a class="back" href="index.html">← Back</a>
+<h1 id="title"></h1>
+<div class="grid" id="gallery"></div>
 
-  <div class="grid" id="gallery"></div>
-
-  <div class="overlay" id="overlay">
-    <img id="overlayImg">
+<!-- Lightbox -->
+<div id="lightbox" class="lightbox hidden">
+  <div class="lightbox-content">
+    <img id="lightbox-img">
+    <div class="lightbox-actions">
+      <a id="download-btn" download>⬇ Download</a>
+      <button id="close-btn">✕</button>
+    </div>
   </div>
+</div>
 
-  <script>
-    const supabaseClient = supabase.createClient(
-      "https://whnxaenjjzemzfxpnlrq.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndobnhhZW5qanplbXpmeHBubHJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5MzIxODYsImV4cCI6MjA4NDUwODE4Nn0.4iRX0FV-YKVQv1cC9-iZ6J3oebRVvJEYcP7kaIhU-d4");
+<script>
+  const supabaseClient = supabase.createClient(
+    "https://whnxaenjjzemzfxpnlrq.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndobnhhZW5qanplbXpmeHBubHJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5MzIxODYsImV4cCI6MjA4NDUwODE4Nn0.4iRX0FV-YKVQv1cC9-iZ6J3oebRVvJEYcP7kaIhU-d4");
 
-    const galleryName = new URLSearchParams(location.search).get("g");
-    document.getElementById("title").textContent = galleryName;
+  const galleryName = new URLSearchParams(location.search).get("g");
+  document.getElementById("title").textContent = galleryName;
 
-    const container = document.getElementById("gallery");
-    const overlay = document.getElementById("overlay");
-    const overlayImg = document.getElementById("overlayImg");
+  const container = document.getElementById("gallery");
+  const lightbox = document.getElementById("lightbox");
+  const lightboxImg = document.getElementById("lightbox-img");
+  const downloadBtn = document.getElementById("download-btn");
+  const closeBtn = document.getElementById("close-btn");
 
-    async function loadImages() {
-      const { data: files } = await supabaseClient
-        .storage
-        .from("galleries")
-        .list(galleryName, { limit: 100 });
+  function openLightbox(src) {
+    lightboxImg.src = src;
+    downloadBtn.href = src;
+    lightbox.classList.remove("hidden");
+  }
 
-      files.forEach(file => {
-        if (!file.name.match(/\.(jpg|jpeg|png|webp)$/i)) return;
+  function closeLightbox() {
+    lightbox.classList.add("hidden");
+    lightboxImg.src = "";
+  }
 
-        const url = supabaseClient
-          .storage
-          .from("galleries")
-          .getPublicUrl(`${galleryName}/${file.name}`).data.publicUrl;
+  closeBtn.onclick = closeLightbox;
+  lightbox.onclick = e => { if (e.target === lightbox) closeLightbox(); };
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeLightbox(); });
 
-        const img = document.createElement("img");
-        img.src = url;
-        img.loading = "lazy";
+  async function loadImages() {
+    const { data: files, error } = await supabaseClient
+      .storage
+      .from("galleries")
+      .list(galleryName, { limit: 100 });
 
-        img.onclick = () => {
-          overlayImg.src = url;
-          overlay.style.display = "flex";
-        };
-
-        container.appendChild(img);
-      });
+    if (error) {
+      console.error(error);
+      return;
     }
 
-    overlay.onclick = () => overlay.style.display = "none";
+    files.forEach(file => {
+      if (!file.name.match(/\.(jpg|jpeg|png|webp)$/i)) return;
 
-    loadImages();
-  </script>
+      const publicUrl = supabaseClient
+        .storage
+        .from("galleries")
+        .getPublicUrl(`${galleryName}/${file.name}`)
+        .data.publicUrl;
+
+      const img = document.createElement("img");
+      img.src = publicUrl;
+      img.loading = "lazy";
+      img.onclick = () => openLightbox(publicUrl);
+
+      container.appendChild(img);
+    });
+  }
+
+  loadImages();
+</script>
 
 </body>
 </html>
