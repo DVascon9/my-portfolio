@@ -85,54 +85,63 @@
   <div class="grid" id="galleries"></div>
 
   <script>
-    const supabaseClient = supabase.createClient(
-      "https://whnxaenjjzemzfxpnlrq.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndobnhhZW5qanplbXpmeHBubHJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5MzIxODYsImV4cCI6MjA4NDUwODE4Nn0.4iRX0FV-YKVQv1cC9-iZ6J3oebRVvJEYcP7kaIhU-d4"
-    );
+const supabaseClient = supabase.createClient(
+  "https://whnxaenjjzemzfxpnlrq.supabase.co",
+       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndobnhhZW5qanplbXpmeHBubHJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5MzIxODYsImV4cCI6MjA4NDUwODE4Nn0.4iRX0FV-YKVQv1cC9-iZ6J3oebRVvJEYcP7kaIhU-d4");
 
-    const bucket = "galleries";
-    const container = document.getElementById("galleries");
+const bucket = "galleries";
+const container = document.getElementById("galleries");
 
-    async function loadGalleries() {
-      const { data: folders, error } = await supabaseClient
+async function loadGalleries() {
+  const { data: folders, error } = await supabaseClient
+    .storage
+    .from(bucket)
+    .list("", { limit: 100 });
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  if (!folders || folders.length === 0) {
+    container.innerHTML = "<p>No galleries found.</p>";
+    return;
+  }
+
+  for (const folder of folders) {
+    if (!folder.name) continue;
+
+    const { data: images } = await supabaseClient
+      .storage
+      .from(bucket)
+      .list(folder.name, { limit: 1 });
+
+    let cover = "";
+    if (images && images.length > 0) {
+      cover = supabaseClient
         .storage
         .from(bucket)
-        .list("", { limit: 100 });
-
-      if (error) return console.error(error);
-
-      for (const folder of folders) {
-        if (!folder.id) continue;
-
-        const { data: images } = await supabaseClient
-          .storage
-          .from(bucket)
-          .list(folder.name, { limit: 1 });
-
-        if (!images || images.length === 0) continue;
-
-        const cover = supabaseClient
-          .storage
-          .from(bucket)
-          .getPublicUrl(`${folder.name}/${images[0].name}`).data.publicUrl;
-
-        const card = document.createElement("div");
-        card.className = "gallery-card";
-        card.innerHTML = `
-          <img src="${cover}" loading="lazy">
-          <div class="gallery-title">${folder.name}</div>
-        `;
-
-        card.onclick = () => {
-          window.location.href = `gallery.html?g=${encodeURIComponent(folder.name)}`;
-        };
-
-        container.appendChild(card);
-      }
+        .getPublicUrl(`${folder.name}/${images[0].name}`).data.publicUrl;
     }
 
-    loadGalleries();
-  </script>
+    const card = document.createElement("div");
+    card.className = "gallery-card";
+    card.innerHTML = `
+      <img src="${cover}" loading="lazy">
+      <div class="gallery-title">${folder.name}</div>
+    `;
+
+    card.onclick = () => {
+      window.location.href = `gallery.html?g=${encodeURIComponent(folder.name)}`;
+    };
+
+    container.appendChild(card);
+  }
+}
+
+loadGalleries();
+</script>
+
 
 </body>
 </html>
