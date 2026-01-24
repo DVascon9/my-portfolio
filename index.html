@@ -1,81 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>DVascon Productions</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Dvascon Productions</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: "Helvetica Neue", Arial, sans-serif;
-    }
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&display=swap" rel="stylesheet">
 
-    body {
-      background: #0b0b0b;
-      color: white;
-    }
+<style>
+body {
+  margin:0;
+  font-family:Inter, sans-serif;
+  background:#05060A;
+  color:white;
+}
 
-    /* HERO */
-    .hero {
-      height: 100vh;
-      background:
-        linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.75)),
-        url("https://whnxaenjjzemzfxpnlrq.supabase.co/storage/v1/object/public/galleries/01-16-26/Ava_Martin.jpg");
-      background-size: cover;
-      background-position: center;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 2rem;
-    }
+.hero {
+  min-height:100vh;
+  background:
+    linear-gradient(rgba(0,0,0,.6), rgba(0,0,0,.6)),
+    url("https://whnxaenjjzemzfxpnlrq.supabase.co/storage/v1/object/public/galleries/01-16-26/Ava_Martin.jpg")
+    center/cover no-repeat;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
 
-    .hero h1 {
-      font-size: 3rem;
-      letter-spacing: 2px;
-      margin-bottom: 1.5rem;
-    }
+h1 { font-size:3rem; margin-bottom:.5rem; }
+p { opacity:.8; margin-bottom:2rem; }
 
-    /* SPORT BUTTONS */
-    .sports {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      justify-content: center;
-    }
+.grid {
+  display:flex;
+  gap:1rem;
+  flex-wrap:wrap;
+  justify-content:center;
+}
 
-    .sport-btn {
-      padding: 1rem 2rem;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.25);
-      color: white;
-      text-decoration: none;
-      border-radius: 40px;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(6px);
-    }
+.card {
+  padding:1rem 1.8rem;
+  background:rgba(255,255,255,.15);
+  border-radius:999px;
+  cursor:pointer;
+  transition:.25s;
+}
 
-    .sport-btn:hover {
-      transform: translateY(-4px);
-      background: rgba(255,255,255,0.15);
-    }
-  </style>
+.card:hover {
+  background:rgba(255,255,255,.3);
+  transform:translateY(-2px);
+}
+</style>
 </head>
 
 <body>
-  <section class="hero">
-    <h1>DVASCON PRODUCTIONS</h1>
 
-    <div class="sports">
-      <a class="sport-btn" href="gallery.html?sport=basketball">Basketball</a>
-      <a class="sport-btn" href="gallery.html?sport=volleyball">Volleyball</a>
-      <a class="sport-btn" href="gallery.html?sport=softball">Softball</a>
-      <a class="sport-btn" href="gallery.html?sport=soccer">Soccer</a>
-    </div>
-  </section>
+<section class="hero">
+  <h1>Dvascon Productions</h1>
+  <p>Select a sport</p>
+  <div class="grid" id="sports"></div>
+</section>
+
+<script>
+const supabaseClient = supabase.createClient(
+  "https://whnxaenjjzemzfxpnlrq.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndobnhhZW5qanplbXpmeHBubHJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5MzIxODYsImV4cCI6MjA4NDUwODE4Nn0.4iRX0FV-YKVQv1cC9-iZ6J3oebRVvJEYcP7kaIhU-d4");
+
+async function loadSports() {
+  const { data } = await supabaseClient
+    .storage
+    .from("galleries")
+    .list("", { limit: 100 });
+
+  const container = document.getElementById("sports");
+
+  data.forEach(folder => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.textContent = folder.name;
+    div.onclick = () => {
+      location.href = `sport.html?sport=${encodeURIComponent(folder.name)}`;
+    };
+    container.appendChild(div);
+  });
+}
+
+loadSports();
+</script>
+
 </body>
 </html>

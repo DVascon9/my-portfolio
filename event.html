@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Teams</title>
+<title>Events</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap" rel="stylesheet">
@@ -18,7 +18,7 @@ body {
 a { color:white; opacity:.7; text-decoration:none; }
 .grid {
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
   gap:1.5rem;
   margin-top:2rem;
 }
@@ -36,38 +36,43 @@ a { color:white; opacity:.7; text-decoration:none; }
 
 <body>
 
-<a href="index.html">← Back</a>
+<a id="back">← Back</a>
 <h2 id="title"></h2>
 
-<div class="grid" id="teams"></div>
+<div class="grid" id="events"></div>
 
 <script>
 const supabaseClient = supabase.createClient(
   "https://whnxaenjjzemzfxpnlrq.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndobnhhZW5qanplbXpmeHBubHJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5MzIxODYsImV4cCI6MjA4NDUwODE4Nn0.4iRX0FV-YKVQv1cC9-iZ6J3oebRVvJEYcP7kaIhU-d4");
 
-const sport = new URLSearchParams(location.search).get("sport");
-document.getElementById("title").textContent = sport;
+const params = new URLSearchParams(location.search);
+const sport = params.get("sport");
+const team = params.get("team");
 
-async function loadTeams() {
+document.getElementById("title").textContent = `${sport} • ${team}`;
+document.getElementById("back").href = `sport.html?sport=${sport}`;
+
+async function loadEvents() {
   const { data } = await supabaseClient
     .storage.from("galleries")
-    .list(sport);
+    .list(`${sport}/${team}`);
 
-  const container = document.getElementById("teams");
+  const container = document.getElementById("events");
 
-  data.forEach(team => {
+  data.forEach(event => {
     const div = document.createElement("div");
     div.className = "card";
-    div.textContent = team.name;
+    div.textContent = event.name;
     div.onclick = () => {
-      location.href = `event.html?sport=${encodeURIComponent(sport)}&team=${encodeURIComponent(team.name)}`;
+      location.href =
+        `gallery.html?sport=${sport}&team=${team}&event=${encodeURIComponent(event.name)}`;
     };
     container.appendChild(div);
   });
 }
 
-loadTeams();
+loadEvents();
 </script>
 </body>
 </html>
