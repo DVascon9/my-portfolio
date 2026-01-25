@@ -5,156 +5,140 @@
 <title>Dvascon Productions</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- Font -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-
-<!-- Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-<!-- Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 :root {
-  --bg: #05060A;
-  --card: #0B0E16;
-  --text: #E5E7EB;
-  --muted: #9CA3AF;
+  --bg:#05060A;
+  --card:#111827;
+  --text:#E5E7EB;
+  --muted:#9CA3AF;
 }
 
-* { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  font-family: Inter, sans-serif;
-  background: var(--bg);
-  color: var(--text);
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Inter,sans-serif;
+  background:var(--bg);
+  color:var(--text);
 }
 
-/* ================= HERO ================= */
-.hero {
-  height: 48vh;
-  min-height: 380px;
+/* NAVBAR */
+.nav{
+  position:fixed;
+  top:0; left:0; right:0;
+  height:64px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 1.5rem;
+  background:rgba(5,6,10,.85);
+  backdrop-filter:blur(10px);
+  z-index:1000;
+}
+.nav-left{display:flex;align-items:center;gap:.75rem}
+.nav img{height:34px}
+.nav h1{font-size:1.1rem;font-weight:500}
+.burger{
+  font-size:1.4rem;
+  cursor:pointer;
+}
+
+/* MENU */
+.menu{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.92);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:1.5rem;
+  transform:translateY(-100%);
+  transition:.35s ease;
+  z-index:999;
+}
+.menu.open{transform:translateY(0)}
+.menu button{
+  background:none;
+  border:none;
+  color:white;
+  font-size:1.2rem;
+  cursor:pointer;
+}
+.menu a{
+  margin-top:2rem;
+  color:#9CA3AF;
+  text-decoration:none;
+}
+
+/* HERO */
+.hero{
+  margin-top:64px;
+  height:55vh;
   background:
-    linear-gradient(to bottom, rgba(0,0,0,.55), rgba(5,6,10,.95)),
+    linear-gradient(to bottom,rgba(0,0,0,.55),#05060A),
     url("https://whnxaenjjzemzfxpnlrq.supabase.co/storage/v1/object/public/galleries/Volleyball/Omaha%20Supernovas/01-16-26-vs-Atlanta%20Vibe/Ava-Martin.jpg")
-    center / cover no-repeat;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 2rem;
+    center/cover no-repeat;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:2rem;
 }
+.hero h2{font-size:clamp(2.2rem,4vw,3rem);margin-bottom:.5rem}
+.hero p{color:var(--muted)}
 
-.hero h1 {
-  font-size: clamp(2.2rem, 4vw, 3.1rem);
-  font-weight: 600;
+/* SPORTS */
+.section{padding:3rem 2rem;max-width:1200px;margin:auto}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:1.5rem;
 }
-
-.hero p {
-  color: var(--muted);
-  margin: .75rem 0 1.5rem;
+.card{
+  height:160px;
+  border-radius:18px;
+  background:#111827;
+  display:flex;
+  align-items:flex-end;
+  padding:1.2rem;
+  cursor:pointer;
+  transition:.3s;
 }
-
-.hero a {
-  display: inline-block;
-  padding: .7rem 1.4rem;
-  border-radius: 999px;
-  background: #fff;
-  color: #000;
-  font-weight: 500;
-  text-decoration: none;
-  transition: transform .2s ease, opacity .2s ease;
+.card:hover{
+  transform:translateY(-6px);
+  box-shadow:0 20px 40px rgba(0,0,0,.6);
 }
-
-.hero a:hover {
-  transform: translateY(-2px);
-  opacity: .9;
-}
-
-/* ================= SECTION ================= */
-.section {
-  padding: 3rem 2rem;
-  max-width: 1200px;
-  margin: auto;
-}
-
-.section h2 {
-  text-align: center;
-  font-weight: 500;
-  margin-bottom: 2.5rem;
-}
-
-/* ================= GRID ================= */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-  gap: 1.5rem;
-}
-
-/* ================= SPORT CARD ================= */
-.card {
-  position: relative;
-  height: 170px;
-  border-radius: 18px;
-  overflow: hidden;
-  cursor: pointer;
-  background: var(--card);
-  transition: transform .3s ease, box-shadow .3s ease;
-}
-
-.card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,.75), rgba(0,0,0,.2));
-}
-
-.card:hover {
-  transform: translateY(-6px) scale(1.02);
-  box-shadow: 0 25px 50px rgba(0,0,0,.6);
-}
-
-.card-content {
-  position: absolute;
-  bottom: 1.25rem;
-  left: 1.25rem;
-}
-
-.card i {
-  font-size: 1.8rem;
-  margin-bottom: .3rem;
-}
-
-.card span {
-  font-size: 1.15rem;
-  font-weight: 500;
-}
-
-/* MOBILE */
-@media (max-width: 640px) {
-  .hero { height: 45vh; }
-}
+.card i{font-size:1.8rem;margin-bottom:.4rem}
 </style>
 </head>
 
 <body>
 
-<!-- HERO -->
+<div class="nav">
+  <div class="nav-left">
+    <img src="https://dvascon.com/wp-content/uploads/2025/08/cropped-dvascon_productions_logo_transbg-67356-1-edited.png">
+    <h1>Dvascon Productions</h1>
+  </div>
+  <i class="fa-solid fa-bars burger" onclick="toggleMenu()"></i>
+</div>
+
+<div class="menu" id="menu">
+  <div id="menuSports"></div>
+  <a href="https://dot.cards/dvascon_productions" target="_blank">Contact</a>
+</div>
+
 <section class="hero">
   <div>
-    <h1>Dvascon Productions</h1>
+    <h2>Dvascon Productions</h2>
     <p>Sports photography & event coverage</p>
-    <a href="https://dot.cards/dvascon_productions?utm_source=ig&utm_medium=social&utm_content=link_in_bio" target="_blank">
-      Contact
-    </a>
   </div>
 </section>
 
-<!-- SPORTS -->
 <section class="section">
-  <h2>Select a sport</h2>
   <div class="grid" id="sports"></div>
 </section>
 
@@ -163,51 +147,38 @@ const supabaseClient = supabase.createClient(
   "https://whnxaenjjzemzfxpnlrq.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndobnhhZW5qanplbXpmeHBubHJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5MzIxODYsImV4cCI6MjA4NDUwODE4Nn0.4iRX0FV-YKVQv1cC9-iZ6J3oebRVvJEYcP7kaIhU-d4");
 
-function getSportIcon(name) {
-  name = name.toLowerCase();
-  if (name.includes("volleyball")) return "fa-volleyball";
-  if (name.includes("basketball")) return "fa-basketball";
-  if (name.includes("soccer")) return "fa-futbol";
-  if (name.includes("softball")) return "fa-baseball";
-  if (name.includes("baseball")) return "fa-baseball-bat-ball";
-  if (name.includes("tennis")) return "fa-table-tennis-paddle-ball";
-  return "fa-camera";
+function icon(name){
+  name=name.toLowerCase();
+  if(name.includes("volleyball"))return"fa-volleyball";
+  if(name.includes("basketball"))return"fa-basketball";
+  if(name.includes("baseball"))return"fa-baseball";
+  if(name.includes("softball"))return"fa-baseball";
+  if(name.includes("tennis"))return"fa-table-tennis-paddle-ball";
+  return"fa-camera";
 }
 
-async function loadSports() {
-  const { data, error } = await supabaseClient
-    .storage
-    .from("galleries")
-    .list("", { limit: 50 });
+function toggleMenu(){
+  document.getElementById("menu").classList.toggle("open");
+}
 
-  if (error) {
-    console.error(error);
-    return;
-  }
+async function loadSports(){
+  const {data}=await supabaseClient.storage.from("galleries").list("");
+  const grid=document.getElementById("sports");
+  const menu=document.getElementById("menuSports");
 
-  const grid = document.getElementById("sports");
-
-  data.forEach(sport => {
-    if (!sport.name) return;
-
-    const card = document.createElement("div");
-    card.className = "card";
-
-    card.innerHTML = `
-      <div class="card-content">
-        <i class="fa-solid ${getSportIcon(sport.name)}"></i>
-        <span>${sport.name}</span>
-      </div>
-    `;
-
-    card.onclick = () => {
-      location.href = `sport.html?sport=${encodeURIComponent(sport.name)}`;
-    };
-
+  data.forEach(s=>{
+    const card=document.createElement("div");
+    card.className="card";
+    card.innerHTML=`<div><i class="fa-solid ${icon(s.name)}"></i><div>${s.name}</div></div>`;
+    card.onclick=()=>location.href=`sport.html?sport=${encodeURIComponent(s.name)}`;
     grid.appendChild(card);
+
+    const btn=document.createElement("button");
+    btn.textContent=s.name;
+    btn.onclick=()=>location.href=`sport.html?sport=${encodeURIComponent(s.name)}`;
+    menu.appendChild(btn);
   });
 }
-
 loadSports();
 </script>
 

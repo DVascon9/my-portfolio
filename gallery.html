@@ -4,282 +4,123 @@
 <meta charset="UTF-8">
 <title>Gallery</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 
 <style>
-body {
-  margin: 0;
-  padding: 1.5rem;
-  background: #05060A;
-  color: #E5E7EB;
-  font-family: Inter, sans-serif;
+body{
+  margin:0;
+  background:#05060A;
+  color:white;
+  font-family:Inter,sans-serif;
+}
+a{color:#9CA3AF;text-decoration:none;padding:1rem;display:inline-block}
+
+.grid{
+  columns:4 260px;
+  column-gap:1rem;
+  padding:1rem;
+}
+.grid img{
+  width:100%;
+  margin-bottom:1rem;
+  border-radius:12px;
+  cursor:pointer;
 }
 
-a {
-  color: #9CA3AF;
-  text-decoration: none;
+.lightbox{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.85);
+  display:none;
+  align-items:center;
+  justify-content:center;
 }
-
-h1 {
-  margin: 1rem 0;
+.lightbox.open{display:flex}
+.box{
+  background:#0b0b0b;
+  padding:1rem;
+  border-radius:16px;
 }
-
-/* Masonry grid */
-.grid {
-  columns: 4 260px;
-  column-gap: 1rem;
+.box img{
+  max-width:80vw;
+  max-height:70vh;
 }
-
-.grid img {
-  width: 100%;
-  margin-bottom: 1rem;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: transform .2s ease, box-shadow .2s ease;
+.controls{
+  display:flex;
+  justify-content:space-between;
+  margin-top:.75rem;
 }
-
-.grid img:hover {
-  transform: scale(1.03);
-  box-shadow: 0 10px 25px rgba(0,0,0,.6);
-}
-
-/* Lightbox */
-.lightbox {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.85);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.lightbox.open {
-  display: flex;
-}
-
-.lightbox-box {
-  background: #0b0b0b;
-  padding: 1rem;
-  border-radius: 16px;
-  animation: pop .25s ease;
-  max-width: 90vw;
-  max-height: 90vh;
-}
-
-.lightbox-box img {
-  max-width: 80vw;
-  max-height: 70vh;
-  border-radius: 12px;
-}
-
-/* Controls */
-.controls {
-  display: flex;
-  justify-content: space-between;
-  gap: .5rem;
-  margin-top: .75rem;
-}
-
-button {
-  background: #1f2937;
-  color: white;
-  border: none;
-  padding: .55rem .9rem;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-/* Animations */
-@keyframes pop {
-  from { opacity: 0; transform: scale(.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-/* Mobile polish */
-@media (max-width: 768px) {
-  body { padding: 1rem; }
-  .grid { columns: 2 160px; }
-  .controls { flex-wrap: wrap; }
-  button { min-height: 44px; flex: 1; }
+button{
+  background:#1f2937;
+  border:none;
+  color:white;
+  padding:.5rem .9rem;
+  border-radius:8px;
+  cursor:pointer;
 }
 </style>
 </head>
 
 <body>
 
-<a href="index.html">← Back</a>
-<h1 id="title"></h1>
-
+<a href="javascript:history.back()">← Back</a>
 <div class="grid" id="gallery"></div>
 
-<button onclick="downloadZIP()" style="margin-top:1rem">
-  ⬇ Download Event (ZIP)
-</button>
-
-<!-- Lightbox -->
-<div class="lightbox" id="lightbox">
-  <div class="lightbox-box">
-    <img id="lightbox-img">
+<div class="lightbox" id="lb">
+  <div class="box">
+    <img id="img">
     <div class="controls">
-      <button onclick="prev()">←</button>
-      <button onclick="downloadCurrent()">⬇ Download</button>
-      <button onclick="next()">→</button>
-      <button onclick="closeLightbox()">✕</button>
+      <button onclick="download()">⬇ Download</button>
+      <button onclick="closeLB()">✕</button>
     </div>
   </div>
 </div>
 
 <script>
-/* SUPABASE */
-const supabaseClient = supabase.createClient(
+const supabaseClient=supabase.createClient(
   "https://whnxaenjjzemzfxpnlrq.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndobnhhZW5qanplbXpmeHBubHJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5MzIxODYsImV4cCI6MjA4NDUwODE4Nn0.4iRX0FV-YKVQv1cC9-iZ6J3oebRVvJEYcP7kaIhU-d4");
 
-/* PARAMS */
-const params = new URLSearchParams(location.search);
-const sport = params.get("sport");
-const team = params.get("team");
-const event = params.get("event");
+const p=new URLSearchParams(location.search);
+const path=`${p.get("sport")}/${p.get("team")}/${p.get("event")}`;
+const gallery=document.getElementById("gallery");
+const lb=document.getElementById("lb");
+const img=document.getElementById("img");
+let images=[],index=0;
 
-if (!sport || !team || !event) {
-  document.body.innerHTML = "<p>Invalid gallery path.</p>";
-  throw new Error("Missing params");
-}
-
-document.getElementById("title").textContent =
-  `${sport} • ${team} • ${event}`;
-
-const galleryEl = document.getElementById("gallery");
-const lightbox = document.getElementById("lightbox");
-const lightboxImg = document.getElementById("lightbox-img");
-
-let images = [];
-let index = 0;
-
-/* IMAGE PRELOAD */
-function preloadImage(url) {
-  const img = new Image();
-  img.src = url;
-}
-
-/* LOAD IMAGES */
-async function loadImages() {
-  const { data, error } = await supabaseClient
-    .storage
-    .from("galleries")
-    .list(`${sport}/${team}/${event}`, { limit: 300 });
-
-  if (error || !data || data.length === 0) {
-    galleryEl.innerHTML = "<p>No photos found.</p>";
-    return;
-  }
-
-  data.forEach(file => {
-    if (!file.name.match(/\.(jpg|jpeg|png|webp)$/i)) return;
-
-    const url = supabaseClient
-      .storage
-      .from("galleries")
-      .getPublicUrl(`${sport}/${team}/${event}/${file.name}`)
-      .data.publicUrl;
-
+async function load(){
+  const {data}=await supabaseClient.storage.from("galleries").list(path);
+  data.forEach(f=>{
+    if(!f.name.match(/\.(jpg|jpeg|png|webp)$/i))return;
+    const url=supabaseClient.storage.from("galleries")
+      .getPublicUrl(`${path}/${f.name}`).data.publicUrl;
     images.push(url);
-
-    const img = document.createElement("img");
-    img.src = url;
-    img.loading = "lazy";
-    img.onclick = () => openLightbox(images.indexOf(url));
-    galleryEl.appendChild(img);
+    const i=document.createElement("img");
+    i.src=url;
+    i.onclick=()=>open(images.indexOf(url));
+    gallery.appendChild(i);
+  });
+}
+function open(i){index=i;img.src=images[i];lb.classList.add("open")}
+function closeLB(){lb.classList.remove("open")}
+function download(){
+  fetch(images[index]).then(r=>r.blob()).then(b=>{
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(b);
+    a.download=images[index].split("/").pop();
+    a.click();
   });
 }
 
-/* LIGHTBOX */
-function openLightbox(i) {
-  index = i;
-  lightboxImg.src = images[index];
-  lightbox.classList.add("open");
-
-  preloadImage(images[(index + 1) % images.length]);
-  preloadImage(images[(index - 1 + images.length) % images.length]);
-}
-
-function closeLightbox() {
-  lightbox.classList.remove("open");
-}
-
-function next() {
-  index = (index + 1) % images.length;
-  lightboxImg.src = images[index];
-  preloadImage(images[(index + 1) % images.length]);
-}
-
-function prev() {
-  index = (index - 1 + images.length) % images.length;
-  lightboxImg.src = images[index];
-  preloadImage(images[(index - 1 + images.length) % images.length]);
-}
-
-/* DOWNLOAD SINGLE */
-async function downloadCurrent() {
-  const res = await fetch(images[index]);
-  const blob = await res.blob();
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = images[index].split("/").pop().split("?")[0];
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
-/* ZIP DOWNLOAD */
-async function downloadZIP() {
-  const zip = new JSZip();
-
-  for (const url of images) {
-    const res = await fetch(url);
-    const blob = await res.blob();
-    zip.file(url.split("/").pop(), blob);
-  }
-
-  const content = await zip.generateAsync({ type: "blob" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(content);
-  a.download = `${event}.zip`;
-  a.click();
-}
-
-/* KEYBOARD */
-document.addEventListener("keydown", e => {
-  if (!lightbox.classList.contains("open")) return;
-  if (e.key === "ArrowRight") next();
-  if (e.key === "ArrowLeft") prev();
-  if (e.key === "Escape") closeLightbox();
+document.addEventListener("keydown",e=>{
+  if(!lb.classList.contains("open"))return;
+  if(e.key==="ArrowRight")open((index+1)%images.length);
+  if(e.key==="ArrowLeft")open((index-1+images.length)%images.length);
+  if(e.key==="Escape")closeLB();
 });
-
-/* SWIPE */
-let startX = 0;
-lightbox.addEventListener("touchstart", e => {
-  startX = e.touches[0].clientX;
-});
-
-lightbox.addEventListener("touchend", e => {
-  const dx = e.changedTouches[0].clientX - startX;
-  if (dx > 50) prev();
-  if (dx < -50) next();
-});
-
-lightbox.onclick = e => {
-  if (e.target === lightbox) closeLightbox();
-};
-
-loadImages();
+lb.onclick=e=>{if(e.target===lb)closeLB()}
+load();
 </script>
 
 </body>
