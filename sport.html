@@ -2,44 +2,142 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Teams</title>
+<title>Sport | Dvascon Productions</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap" rel="stylesheet">
 
 <style>
+:root {
+  --bg: #05060A;
+  --card: #0B0E16;
+  --text: #E5E7EB;
+  --muted: #9CA3AF;
+}
+
 body {
-  margin:0;
-  padding:2rem;
-  background:#05060A;
-  color:white;
-  font-family:Inter,sans-serif;
+  margin: 0;
+  padding: 2rem;
+  font-family: Inter, sans-serif;
+  background: var(--bg);
+  color: var(--text);
 }
-a { color:white; opacity:.7; text-decoration:none; }
-.grid {
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-  gap:1.5rem;
-  margin-top:2rem;
+
+.back {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: .95rem;
 }
-.card {
-  padding:2rem;
-  background:#111827;
-  border-radius:14px;
-  text-align:center;
-  cursor:pointer;
-  transition:.25s;
+.back:hover { color: var(--text); }
+
+h1 {
+  margin-bottom: 1rem;
+  font-weight: 600;
 }
-.card:hover { transform:translateY(-4px); }
+
+/* SEARCH */
+.search {
+  width: 100%;
+  max-width: 420px;
+  padding: .7rem 1rem;
+  border-radius: 14px;
+  background: #0E1220;
+  border: none;
+  color: var(--text);
+  margin-bottom: 2.5rem;
+}
+.search::placeholder { color: var(--muted); }
+.search:focus { outline: none; }
+
+/* TEAM */
+.team {
+  margin-bottom: 3.5rem;
+}
+
+.team h2 {
+  font-size: 1.4rem;
+  font-weight: 500;
+  margin-bottom: 1.2rem;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  padding-bottom: .5rem;
+}
+
+/* EVENTS GRID */
+.events {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.2rem;
+}
+
+/* EVENT CARD */
+.event {
+  position: relative;
+  height: 170px;
+  border-radius: 18px;
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--card);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.event:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 45px rgba(0,0,0,.6);
+}
+
+.event img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.event::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,.85),
+    rgba(0,0,0,.35),
+    rgba(0,0,0,.15)
+  );
+}
+
+.event span {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  right: 1rem;
+  z-index: 1;
+  font-size: .95rem;
+  font-weight: 500;
+}
+
+/* MOBILE */
+@media (max-width: 640px) {
+  body { padding: 1.25rem; }
+}
 </style>
 </head>
 
 <body>
 
-<a href="index.html">← Back</a>
-<h2 id="title"></h2>
+<a class="back" href="index.html">← Back to sports</a>
+<h1 id="sportTitle"></h1>
 
-<div class="grid" id="teams"></div>
+<input
+  type="text"
+  class="search"
+  id="search"
+  placeholder="Search teams or events..."
+>
+
+<div id="teams"></div>
 
 <script>
 const supabaseClient = supabase.createClient(
@@ -47,27 +145,101 @@ const supabaseClient = supabase.createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndobnhhZW5qanplbXpmeHBubHJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5MzIxODYsImV4cCI6MjA4NDUwODE4Nn0.4iRX0FV-YKVQv1cC9-iZ6J3oebRVvJEYcP7kaIhU-d4");
 
 const sport = new URLSearchParams(location.search).get("sport");
-document.getElementById("title").textContent = sport;
+document.getElementById("sportTitle").textContent = sport;
 
-async function loadTeams() {
-  const { data } = await supabaseClient
-    .storage.from("galleries")
-    .list(sport);
+const teamsContainer = document.getElementById("teams");
+const searchInput = document.getElementById("search");
 
-  const container = document.getElementById("teams");
+let allTeams = [];
 
-  data.forEach(team => {
-    const div = document.createElement("div");
-    div.className = "card";
-    div.textContent = team.name;
-    div.onclick = () => {
-      location.href = `event.html?sport=${encodeURIComponent(sport)}&team=${encodeURIComponent(team.name)}`;
-    };
-    container.appendChild(div);
+async function loadSport() {
+  const { data: teams } = await supabaseClient
+    .storage
+    .from("galleries")
+    .list(sport, { limit: 100 });
+
+  for (const team of teams) {
+    const { data: events } = await supabaseClient
+      .storage
+      .from("galleries")
+      .list(`${sport}/${team.name}`, { limit: 100 });
+
+    const eventData = [];
+
+    for (const event of events) {
+      const { data: images } = await supabaseClient
+        .storage
+        .from("galleries")
+        .list(`${sport}/${team.name}/${event.name}`, { limit: 1 });
+
+      const cover = images?.[0]
+        ? supabaseClient.storage
+            .from("galleries")
+            .getPublicUrl(`${sport}/${team.name}/${event.name}/${images[0].name}`).data.publicUrl
+        : null;
+
+      eventData.push({ name: event.name, cover });
+    }
+
+    allTeams.push({ name: team.name, events: eventData });
+  }
+
+  render(allTeams);
+}
+
+function render(teams) {
+  teamsContainer.innerHTML = "";
+
+  teams.forEach(team => {
+    if (!team.events.length) return;
+
+    const teamDiv = document.createElement("div");
+    teamDiv.className = "team";
+    teamDiv.innerHTML = `<h2>${team.name}</h2><div class="events"></div>`;
+
+    const grid = teamDiv.querySelector(".events");
+
+    team.events.forEach(event => {
+      const card = document.createElement("div");
+      card.className = "event";
+
+      if (event.cover) {
+        const img = document.createElement("img");
+        img.src = event.cover;
+        card.appendChild(img);
+      }
+
+      card.innerHTML += `<span>${event.name}</span>`;
+      card.onclick = () => {
+        location.href = `gallery.html?sport=${sport}&team=${team.name}&event=${event.name}`;
+      };
+
+      grid.appendChild(card);
+    });
+
+    teamsContainer.appendChild(teamDiv);
   });
 }
 
-loadTeams();
+/* SEARCH */
+searchInput.addEventListener("input", e => {
+  const q = e.target.value.toLowerCase();
+
+  const filtered = allTeams
+    .map(team => ({
+      ...team,
+      events: team.events.filter(ev =>
+        team.name.toLowerCase().includes(q) ||
+        ev.name.toLowerCase().includes(q)
+      )
+    }))
+    .filter(t => t.events.length);
+
+  render(filtered);
+});
+
+loadSport();
 </script>
+
 </body>
 </html>

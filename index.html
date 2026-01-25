@@ -5,60 +5,156 @@
 <title>Dvascon Productions</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
+<!-- Font -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<!-- Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&display=swap" rel="stylesheet">
 
 <style>
+:root {
+  --bg: #05060A;
+  --card: #0B0E16;
+  --text: #E5E7EB;
+  --muted: #9CA3AF;
+}
+
+* { box-sizing: border-box; }
+
 body {
-  margin:0;
-  font-family:Inter, sans-serif;
-  background:#05060A;
-  color:white;
+  margin: 0;
+  font-family: Inter, sans-serif;
+  background: var(--bg);
+  color: var(--text);
 }
 
+/* ================= HERO ================= */
 .hero {
-  min-height:100vh;
+  height: 48vh;
+  min-height: 380px;
   background:
-    linear-gradient(rgba(0,0,0,.6), rgba(0,0,0,.6)),
+    linear-gradient(to bottom, rgba(0,0,0,.55), rgba(5,6,10,.95)),
     url("https://whnxaenjjzemzfxpnlrq.supabase.co/storage/v1/object/public/galleries/Volleyball/Omaha%20Supernovas/01-16-26-vs-Atlanta%20Vibe/Ava-Martin.jpg")
-    center/cover no-repeat;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
+    center / cover no-repeat;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
 }
 
-h1 { font-size:3rem; margin-bottom:.5rem; }
-p { opacity:.8; margin-bottom:2rem; }
+.hero h1 {
+  font-size: clamp(2.2rem, 4vw, 3.1rem);
+  font-weight: 600;
+}
 
+.hero p {
+  color: var(--muted);
+  margin: .75rem 0 1.5rem;
+}
+
+.hero a {
+  display: inline-block;
+  padding: .7rem 1.4rem;
+  border-radius: 999px;
+  background: #fff;
+  color: #000;
+  font-weight: 500;
+  text-decoration: none;
+  transition: transform .2s ease, opacity .2s ease;
+}
+
+.hero a:hover {
+  transform: translateY(-2px);
+  opacity: .9;
+}
+
+/* ================= SECTION ================= */
+.section {
+  padding: 3rem 2rem;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.section h2 {
+  text-align: center;
+  font-weight: 500;
+  margin-bottom: 2.5rem;
+}
+
+/* ================= GRID ================= */
 .grid {
-  display:flex;
-  gap:1rem;
-  flex-wrap:wrap;
-  justify-content:center;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 1.5rem;
 }
 
+/* ================= SPORT CARD ================= */
 .card {
-  padding:1rem 1.8rem;
-  background:rgba(255,255,255,.15);
-  border-radius:999px;
-  cursor:pointer;
-  transition:.25s;
+  position: relative;
+  height: 170px;
+  border-radius: 18px;
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--card);
+  transition: transform .3s ease, box-shadow .3s ease;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,.75), rgba(0,0,0,.2));
 }
 
 .card:hover {
-  background:rgba(255,255,255,.3);
-  transform:translateY(-2px);
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 25px 50px rgba(0,0,0,.6);
+}
+
+.card-content {
+  position: absolute;
+  bottom: 1.25rem;
+  left: 1.25rem;
+}
+
+.card i {
+  font-size: 1.8rem;
+  margin-bottom: .3rem;
+}
+
+.card span {
+  font-size: 1.15rem;
+  font-weight: 500;
+}
+
+/* MOBILE */
+@media (max-width: 640px) {
+  .hero { height: 45vh; }
 }
 </style>
 </head>
 
 <body>
 
+<!-- HERO -->
 <section class="hero">
-  <h1>Dvascon Productions</h1>
-  <p>Select a sport</p>
+  <div>
+    <h1>Dvascon Productions</h1>
+    <p>Sports photography & event coverage</p>
+    <a href="https://dot.cards/dvascon_productions?utm_source=ig&utm_medium=social&utm_content=link_in_bio" target="_blank">
+      Contact
+    </a>
+  </div>
+</section>
+
+<!-- SPORTS -->
+<section class="section">
+  <h2>Select a sport</h2>
   <div class="grid" id="sports"></div>
 </section>
 
@@ -67,22 +163,48 @@ const supabaseClient = supabase.createClient(
   "https://whnxaenjjzemzfxpnlrq.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndobnhhZW5qanplbXpmeHBubHJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5MzIxODYsImV4cCI6MjA4NDUwODE4Nn0.4iRX0FV-YKVQv1cC9-iZ6J3oebRVvJEYcP7kaIhU-d4");
 
+function getSportIcon(name) {
+  name = name.toLowerCase();
+  if (name.includes("volleyball")) return "fa-volleyball";
+  if (name.includes("basketball")) return "fa-basketball";
+  if (name.includes("soccer")) return "fa-futbol";
+  if (name.includes("softball")) return "fa-baseball";
+  if (name.includes("baseball")) return "fa-baseball-bat-ball";
+  if (name.includes("tennis")) return "fa-table-tennis-paddle-ball";
+  return "fa-camera";
+}
+
 async function loadSports() {
-  const { data } = await supabaseClient
+  const { data, error } = await supabaseClient
     .storage
     .from("galleries")
-    .list("", { limit: 100 });
+    .list("", { limit: 50 });
 
-  const container = document.getElementById("sports");
+  if (error) {
+    console.error(error);
+    return;
+  }
 
-  data.forEach(folder => {
-    const div = document.createElement("div");
-    div.className = "card";
-    div.textContent = folder.name;
-    div.onclick = () => {
-      location.href = `sport.html?sport=${encodeURIComponent(folder.name)}`;
+  const grid = document.getElementById("sports");
+
+  data.forEach(sport => {
+    if (!sport.name) return;
+
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <div class="card-content">
+        <i class="fa-solid ${getSportIcon(sport.name)}"></i>
+        <span>${sport.name}</span>
+      </div>
+    `;
+
+    card.onclick = () => {
+      location.href = `sport.html?sport=${encodeURIComponent(sport.name)}`;
     };
-    container.appendChild(div);
+
+    grid.appendChild(card);
   });
 }
 
