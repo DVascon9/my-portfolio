@@ -68,10 +68,23 @@ body{
   font-size:1.2rem;
   cursor:pointer;
 }
-.menu a{
-  margin-top:2rem;
-  color:#9CA3AF;
-  text-decoration:none;
+
+/* menu animation */
+.menu-animate{
+  opacity:0;
+  transform:translateY(12px);
+  transition:opacity .35s ease, transform .35s ease;
+}
+.menu.open .menu-animate{
+  opacity:1;
+  transform:translateY(0);
+}
+
+.menu-divider{
+  width:200px;
+  height:1px;
+  background:rgba(255,255,255,.15);
+  margin:1.5rem 0;
 }
 
 /* HERO */
@@ -114,26 +127,28 @@ body{
 }
 .card i{font-size:1.8rem;margin-bottom:.4rem}
 
+/* CONTACT BUTTON – FORMAL */
 .contact-btn{
-display:inline-block;
-margin-top:1rem;
-padding:0.6rem 1.4rem;
-border-radius:999px;
-font-size:0.95rem;
-font-weight:500;
-color:white;
-text-decoration:none;
-border:1px solid rgba(255,255,255,0.35);
-background:rgba(255,255,255,0.08);
-backdrop-filter:blur(6px);
-transition:all 0.25s ease;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:200px;
+  margin-top:1.2rem;
+  padding:.75rem 1rem;
+  font-size:.9rem;
+  font-weight:600;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  color:#05060A;
+  background:white;
+  border-radius:10px;
+  text-decoration:none;
+  box-shadow:0 8px 20px rgba(0,0,0,.35);
+  transition:.25s ease;
 }
-
-
 .contact-btn:hover{
-background:white;
-color:#05060A;
-transform:translateY(-1px);
+  transform:translateY(-2px);
+  box-shadow:0 14px 30px rgba(0,0,0,.45);
 }
 </style>
 </head>
@@ -148,17 +163,34 @@ transform:translateY(-1px);
   <i class="fa-solid fa-bars burger" onclick="toggleMenu()"></i>
 </div>
 
+<!-- MENU -->
 <div class="menu" id="menu">
   <div id="menuSports"></div>
-  <a href="https://dot.cards/dvascon_productions" target="_blank">Contact</a>
+
+  <div class="menu-divider"></div>
+
+  <a
+    href="https://dot.cards/dvascon_productions"
+    target="_blank"
+    class="contact-btn menu-animate"
+  >
+    Contact
+  </a>
 </div>
 
 <section class="hero">
   <div>
     <h2>Dvascon Productions</h2>
     <p>Sports photography & event coverage</p>
-    <a href="https://dot.cards/dvascon_productions" target="_blank">Contact</a>
-</a>
+
+    <!-- HERO CONTACT BUTTON -->
+    <a
+      href="https://dot.cards/dvascon_productions"
+      target="_blank"
+      class="contact-btn"
+    >
+      Contact
+    </a>
   </div>
 </section>
 
@@ -169,7 +201,8 @@ transform:translateY(-1px);
 <script>
 const supabaseClient = supabase.createClient(
   "https://whnxaenjjzemzfxpnlrq.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndobnhhZW5qanplbXpmeHBubHJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5MzIxODYsImV4cCI6MjA4NDUwODE4Nn0.4iRX0FV-YKVQv1cC9-iZ6J3oebRVvJEYcP7kaIhU-d4");
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndobnhhZW5qanplbXpmeHBubHJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5MzIxODYsImV4cCI6MjA4NDUwODE4Nn0.4iRX0FV-YKVQv1cC9-iZ6J3oebRVvJEYcP7kaIhU-d4"
+);
 
 function icon(name){
   name=name.toLowerCase();
@@ -177,8 +210,8 @@ function icon(name){
   if(name.includes("basketball"))return"fa-basketball";
   if(name.includes("baseball"))return"fa-baseball";
   if(name.includes("softball"))return"fa-baseball";
-  if(name.includes("tennis")) return "fa-baseball-ball";
-  if(name.includes("soccer") || name.includes("football")) return "fa-futbol";
+  if(name.includes("tennis"))return"fa-baseball-ball";
+  if(name.includes("soccer")||name.includes("football"))return"fa-futbol";
   return"fa-camera";
 }
 
@@ -200,6 +233,7 @@ async function loadSports(){
 
     const btn=document.createElement("button");
     btn.textContent=s.name;
+    btn.className="menu-animate";
     btn.onclick=()=>location.href=`sport.html?sport=${encodeURIComponent(s.name)}`;
     menu.appendChild(btn);
   });
