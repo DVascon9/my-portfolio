@@ -199,7 +199,31 @@ load();
 
 <script>
   function toggleMenu(){
-  document.getElementById("menu").classList.toggle("open");
+  const menu = document.getElementById("menu");
+  menu.classList.toggle("open");
+
+  // Clear existing sports list
+  const menuSports = document.getElementById("menuSports");
+  menuSports.innerHTML = "";
+
+  // Fetch sports folders from Supabase
+  supabaseClient.storage.from("galleries").list("").then(({ data: sports, error }) => {
+    if (error) {
+      console.error("Error fetching sports folders:", error);
+      return;
+    }
+
+    // Display sports folders in the menu
+    sports.forEach(sport => {
+      const button = document.createElement("button");
+      button.textContent = sport.name;
+      button.style.margin = "0.5rem 0";
+      button.onclick = () => {
+        location.href = `sport.html?sport=${encodeURIComponent(sport.name)}`;
+      };
+      menuSports.appendChild(button);
+    });
+  });
 }
 
 async function loadMenuSports(){
