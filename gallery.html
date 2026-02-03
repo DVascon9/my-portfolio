@@ -165,6 +165,11 @@ async function load(){
     const url=supabaseClient.storage.from("galleries")
       .getPublicUrl(`${path}/${f.name}`).data.publicUrl;
     images.push(url);
+
+    // Preload the image
+    const preloadImg = new Image();
+    preloadImg.src = url;
+
     const i=document.createElement("img");
     i.src=url;
     i.onclick=()=>open(images.indexOf(url));
