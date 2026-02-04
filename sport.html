@@ -176,51 +176,81 @@ function formatDate(name) {
   });
 }
 
-async function load(){
-  const { data: teams } =
-    await supabaseClient.storage.from("galleries").list(sport);
+async function load() {
+  try {
+    const { data: teams, error: teamsError } =
+      await supabaseClient.storage.from("galleries").list(sport);
 
-  const container = document.getElementById("teams");
-
-  for(const t of teams){
-    const teamBlock = document.createElement("div");
-    teamBlock.className = "team";
-    teamBlock.innerHTML = `<h3>${t.name}</h3><div class="event-grid"></div>`;
-    const grid = teamBlock.querySelector(".event-grid");
-
-    const { data: events } =
-      await supabaseClient.storage.from("galleries").list(`${sport}/${t.name}`);
-
-    for(const e of events){
-      const { data: images } =
-        await supabaseClient.storage
-          .from("galleries")
-          .list(`${sport}/${t.name}/${e.name}`, { limit:1 });
-
-      const cover = images?.[0]
-        ? supabaseClient.storage
-            .from("galleries")
-            .getPublicUrl(`${sport}/${t.name}/${e.name}/${images[0].name}`).data.publicUrl
-        : "";
-
-      const card = document.createElement("div");
-      card.className = "event-card";
-      card.innerHTML = `
-      <div class="event-image" style="background-image:url('${cover}')"></div>
-      <div class="event-info">
-        <h4>${e.name.replace(/^(\d{2}-\d{2}-\d{2})/, "").trim()}</h4> <!-- Remove date from name -->
-        <span>${formatDate(e.name)}</span>
-      </div>
-`;
-      card.onclick = () =>
-        location.href = `gallery.html?sport=${sport}&team=${t.name}&event=${e.name}`;
-
-      grid.appendChild(card);
+    if (teamsError) {
+      console.error(`Error fetching teams for sport ${sport}:`, teamsError.message);
+      return;
     }
 
-    container.appendChild(teamBlock);
+    const container = document.getElementById("teams");
+    container.innerHTML = ""; // Clear previous content
+
+    for (const t of teams) {
+      const teamBlock = document.createElement("div");
+      teamBlock.className = "team";
+      teamBlock.innerHTML = `<h3>${t.name}</h3><div class="event-grid"></div>`;
+      const grid = teamBlock.querySelector(".event-grid");
+
+      const { data: events, error: eventsError } =
+        await supabaseClient.storage.from("galleries").list(`${sport}/${t.name}`);
+
+      if (eventsError) {
+        console.error(`Error fetching events for team ${t.name}:`, eventsError.message);
+        continue; // Skip this team if there's an error
+      }
+
+      for (const e of events) {
+        try {
+          const { data: images, error: imagesError } = await supabaseClient.storage
+            .from("galleries")
+            .list(`${sport}/${t.name}/${e.name}`, { limit: 1 });
+
+          if (imagesError) {
+            console.error(`Error fetching images for event ${e.name}:`, imagesError.message);
+            continue; // Skip this event if there's an error
+          }
+
+          if (!images || images.length === 0) {
+            console.warn(`No images found for event ${e.name}`);
+            continue; // Skip this event if no images are found
+          }
+
+          const publicUrl = supabaseClient.storage
+            .from("galleries")
+            .getPublicUrl(`${sport}/${t.name}/${e.name}/${images[0].name}`);
+          const cover = publicUrl.data.publicUrl || "";
+
+          const eventName = e.name.replace(/^\d{2}-\d{2}-\d{2}/, "").trim();
+
+          const card = document.createElement("div");
+          card.className = "event-card";
+          card.innerHTML = `
+            <div class="event-image" style="background-image:url('${cover}')"></div>
+            <div class="event-info">
+              <h4>${eventName}</h4>
+              <span>${formatDate(e.name)}</span>
+            </div>
+          `;
+          card.onclick = () =>
+            location.href = `gallery.html?sport=${sport}&team=${t.name}&event=${e.name}`;
+
+          grid.appendChild(card);
+        } catch (err) {
+          console.error(`Unexpected error for event ${e.name}:`, err);
+        }
+      }
+
+      container.appendChild(teamBlock);
+    }
+  } catch (err) {
+    console.error("Unexpected error in load function:", err);
   }
 }
+
 load();
 
 /* MENU */
