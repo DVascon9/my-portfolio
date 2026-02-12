@@ -167,6 +167,33 @@ body{
   margin-top:1rem;
   text-align: center;
 }
+
+/* ABOUT BUTTON STYLE */
+.site-footer {
+  text-align: center;
+  padding: 1rem 0;
+  border-top: 2px solid rgba(255, 255, 255, 0.2);
+  margin-top: 2rem;
+}
+
+.site-footer a {
+  display: inline-block;
+  margin: 1rem auto;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  background: var(--card);
+  border-radius: 8px;
+  text-decoration: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.site-footer a:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
+}
 </style>
 </head>
 
@@ -257,6 +284,12 @@ async function loadSports(){
 }
 loadSports();
 </script>
+
+<footer class="site-footer">
+  <div style="text-align: center;"></div>
+  <a href="about.html">About</a>
+  </div>
+</footer>
 
 </body>
 </html>
