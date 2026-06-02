@@ -1,68 +1,34 @@
-# Dvascon Productions Portfolio — Cloudflare/GitHub Version
+# DVascon Productions Portfolio
 
-This version removes Supabase and is ready for:
+Clean setup:
+GitHub → Cloudflare Pages → dvascon.net  
+Cloudflare R2 stores gallery media.
 
-GitHub → Cloudflare Pages → dvascon.net
+## Keep these JS files
 
-## Files to upload to GitHub
-Upload everything in this folder to your GitHub repo.
+Use:
+- js/config.js
+- js/app.js
 
-## Edit this first
-Open `js/cloudflare.js` and replace:
+Do not use the old js/cloudflare.js with this version.
 
-```js
-const CLOUDFLARE_MEDIA_BASE_URL = "https://YOUR-CLOUDFLARE-PUBLIC-MEDIA-URL-HERE";
-```
+## R2 folder structure
 
-Use your public Cloudflare R2 URL or your custom media domain.
-Examples:
-
-```js
-const CLOUDFLARE_MEDIA_BASE_URL = "https://pub-xxxxxxxx.r2.dev";
-```
-
-or:
-
-```js
-const CLOUDFLARE_MEDIA_BASE_URL = "https://media.dvascon.net";
-```
-
-Do not include a slash at the end.
-
-## Required media folder structure
-Your uploaded Cloudflare media should match this structure:
+Because `MEDIA_ROOT` is set to `galleries`, your R2 paths should look like:
 
 ```text
-Sport/Team/Event/file.jpg
-Sport/Team/Event/file.mp4
-Hidden/DiegoVasconcelos.jpg
+galleries/volleyball/omaha-supernovas/2026-01-16-vs-atlanta-vibe/Ava-Martin.jpg
 ```
 
-Example:
+## When you add a new gallery
 
-```text
-Volleyball/Omaha Supernovas/01-16-26 vs Atlanta Vibe/Ava-Martin.jpg
-```
-
-## Updating `data.json`
-Because a public R2 bucket does not automatically list folders for static HTML, the website reads gallery names from `data.json`.
-
-If your media folders exist locally, run:
-
-```bash
-node generate.js
-```
-
-Then commit the updated `data.json` to GitHub.
+1. Upload photos/videos into R2.
+2. Add the gallery info and filenames to `data.json`.
+3. Push to GitHub.
+4. Cloudflare Pages redeploys automatically.
 
 ## Cloudflare Pages settings
-Framework preset: None
-Build command: leave blank
-Output directory: /
 
-## Domain
-This package includes a `CNAME` file with:
-
-```text
-dvascon.net
-```
+Framework preset: None  
+Build command: leave blank  
+Build output directory: /

@@ -1,1 +1,32 @@
-{}
+{
+  "site": {
+    "title": "DVascon Productions",
+    "logoUrl": "assets/DVascon_Productions_Logo.png",
+    "heroImageUrl": "assets/BG_Website.jpg",
+    "contactUrl": "https://dot.cards/dvascon_productions",
+    "portraitUrl": "https://pub-bb48dd8ef8384549aefb7bc416b48fac.r2.dev/Hidden/DiegoVasconcelos.jpg"
+  },
+  "sports": [
+    {
+      "name": "Volleyball",
+      "slug": "volleyball",
+      "teams": [
+        {
+          "name": "Omaha Supernovas",
+          "slug": "omaha-supernovas",
+          "events": [
+            {
+              "title": "vs Atlanta Vibe",
+              "slug": "2026-01-16-vs-atlanta-vibe",
+              "date": "2026-01-16",
+              "cover": "Ava-Martin.jpg",
+              "files": [
+                "Ava-Martin.jpg"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
