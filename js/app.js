@@ -10,9 +10,14 @@ function joinPath(...parts){
   return parts.filter(Boolean).join('/').replace(/\/+/g, '/');
 }
 
+function encodePath(path){
+  return String(path).split('/').map(encodeURIComponent).join('/');
+}
+
 function mediaUrl(...parts){
-  const path = joinPath(MEDIA_ROOT, ...parts).split('/').map(encodeURIComponent).join('/');
-  return `${MEDIA_BASE_URL.replace(/\/$/, '')}/${path}`;
+  const cleanBase = MEDIA_BASE_URL.replace(/\/$/, '');
+  const path = encodePath(joinPath(MEDIA_ROOT, ...parts));
+  return `${cleanBase}/${path}`;
 }
 
 function eventFolder(sport, team, event){
@@ -31,13 +36,21 @@ function formatDate(value){
 }
 
 function icon(name){
-  const n = name.toLowerCase();
+  const n = String(name || '').toLowerCase();
   if(n.includes('volleyball')) return 'fa-volleyball';
   if(n.includes('basketball')) return 'fa-basketball';
   if(n.includes('baseball') || n.includes('softball')) return 'fa-baseball';
+  if(n.includes('tennis')) return 'fa-table-tennis-paddle-ball';
   if(n.includes('soccer') || n.includes('football')) return 'fa-futbol';
   return 'fa-camera';
 }
+
+function isVideo(file){ return /\.(mp4|mov|webm|m4v)$/i.test(file || ''); }
+function isImage(file){ return /\.(jpg|jpeg|png|webp|gif)$/i.test(file || ''); }
+
+function findSport(data, slug){ return (data.sports || []).find(s => s.slug === slug); }
+function findTeam(sport, slug){ return (sport?.teams || []).find(t => t.slug === slug); }
+function findEvent(team, slug){ return (team?.events || []).find(e => e.slug === slug); }
 
 function buildNav(data){
   const logo = document.querySelector('[data-logo]');
@@ -45,13 +58,13 @@ function buildNav(data){
   const menuSports = document.getElementById('menuSports');
   const contactLinks = document.querySelectorAll('[data-contact]');
 
-  if(logo && data.site.logoUrl) logo.src = data.site.logoUrl;
-  if(siteTitle) siteTitle.textContent = data.site.title || 'Dvascon Productions';
-  contactLinks.forEach(a => a.href = data.site.contactUrl || '#');
+  if(logo) logo.src = data.site?.logoUrl || 'assets/DVascon_Productions_Logo.png';
+  if(siteTitle) siteTitle.textContent = data.site?.title || 'DVascon Productions';
+  contactLinks.forEach(a => a.href = data.site?.contactUrl || 'https://dot.cards/dvascon_productions');
 
   if(menuSports){
     menuSports.innerHTML = '';
-    data.sports.forEach(sport => {
+    (data.sports || []).forEach(sport => {
       const btn = document.createElement('button');
       btn.textContent = sport.name;
       btn.className = 'menu-animate';
@@ -63,4 +76,9 @@ function buildNav(data){
 
 function toggleMenu(){
   document.getElementById('menu')?.classList.toggle('open');
+}
+
+function showEmpty(container, message){
+  if(!container) return;
+  container.innerHTML = `<p style="color:#9CA3AF;line-height:1.6">${message}</p>`;
 }

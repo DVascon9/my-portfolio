@@ -1,7 +1,9 @@
-// Replace this with your Cloudflare R2 Public Development URL or custom media domain.
-// Example: https://pub-abc123.r2.dev OR https://media.dvascon.net
-const MEDIA_BASE_URL = "https://YOUR-R2-PUBLIC-URL-HERE";
+// Cloudflare R2 public media URL.
+// Use your R2 Public Development URL, like: https://pub-xxxxx.r2.dev
+// Do not add a slash at the end.
+const MEDIA_BASE_URL = "https://pub-bb48dd8ef8384549aefb7bc416b48fac.r2.dev";
 
-// Keep this as "galleries" if your R2 files are inside a folder named galleries.
-// If your bucket root already starts with volleyball/basketball/etc, change this to "".
+// Keep this as "galleries" if your R2 bucket has a top-level folder named galleries.
+// Example URL output:
+// https://pub-xxxxx.r2.dev/galleries/volleyball/omaha-supernovas/event/photo.jpg
 const MEDIA_ROOT = "galleries";
