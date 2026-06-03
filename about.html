@@ -4,53 +4,13 @@
   <meta charset="UTF-8">
   <title>About – DVascon Productions</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-
+  <link rel="stylesheet" href="js/styles.css">
   <script src="js/config.js"></script>
   <script src="js/app.js"></script>
-
   <style>
     body {
-      margin: 0;
-      padding: 2rem;
-      padding-top: 64px;
-      background: #05060A;
-      color: #E5E7EB;
-      font-family: Inter, sans-serif;
       line-height: 1.6;
-    }
-
-    .nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 64px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 1.5rem;
-      background: rgba(5, 6, 10, .85);
-      backdrop-filter: blur(10px);
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: .85rem;
-      text-decoration: none;
-      color: inherit;
-    }
-
-    .brand img {
-      height: 44px;
-      width: auto;
-    }
-
-    .brand h1 {
-      font-size: 1.15rem;
-      font-weight: 600;
     }
 
     .container {
@@ -58,25 +18,9 @@
       margin: auto;
     }
 
-    h2 {
-      font-weight: 600;
-      margin-bottom: 1rem;
-    }
-
     p {
       color: #9CA3AF;
       margin-bottom: 1.2rem;
-    }
-
-    .back {
-      display: inline-block;
-      margin-bottom: 1.5rem;
-      color: #9CA3AF;
-      text-decoration: none;
-    }
-
-    .back:hover {
-      color: white;
     }
   </style>
 </head>
@@ -88,33 +32,29 @@
     </a>
   </div>
 
-  <div class="container">
-    <a href="index.html" class="back">← Back</a>
+  <main class="page">
+    <div class="container">
+      <a href="index.html" class="back">← Back</a>
+      <h2>About</h2>
 
-    <h2>About</h2>
+      <p>
+        I’m a sports and event photographer focused on capturing the moments that matter,
+        the intensity, the emotion, and the stories behind every game.
+      </p>
 
-    <p>
-      I’m a sports and event photographer focused on capturing the moments that matter,
-      the intensity, the emotion, and the stories behind every game.
-    </p>
+      <p>
+        From professional teams to local events, my goal is to create clean, impactful
+        visuals that athletes, organizations, and fans can connect with.
+      </p>
 
-    <p>
-      From professional teams to local events, my goal is to create clean, impactful
-      visuals that athletes, organizations, and fans can connect with.
-    </p>
-
-    <p style="font-weight:800;">
-      Based in the Omaha, Nebraska area • Available for event coverage.
-    </p>
-  </div>
+      <p style="font-weight:800;">
+        Based in the Omaha, Nebraska area • Available for event coverage.
+      </p>
+    </div>
+  </main>
 
   <script>
-    async function loadAboutPage() {
-      const data = await loadData();
-      setGlobalNav(data);
-    }
-
-    loadAboutPage().catch(error => console.error(error));
+    setGlobalNav();
   </script>
 </body>
 </html>

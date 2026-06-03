@@ -1,10 +1,9 @@
-// Your Cloudflare R2 public URL.
-// Use the Public Development URL or a custom media domain.
-// Example: https://pub-abc123.r2.dev
+// R2 public URL for displaying images/videos.
+// Use your R2 Public Development URL or a custom media domain.
 const MEDIA_BASE_URL = "https://pub-bb48dd8ef8384549aefb7bc416b48fac.r2.dev";
 
-// Keep this empty because your bucket itself is named "galleries".
-// Only set this to "galleries" if you created a folder named galleries INSIDE the bucket.
+// Your bucket is named "galleries", so leave this empty.
+// Only use "galleries" here if you created a galleries/ folder INSIDE the bucket.
 const MEDIA_ROOT = "";
 
 const SITE_TITLE = "DVascon Productions";

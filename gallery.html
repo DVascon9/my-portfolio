@@ -4,112 +4,38 @@
   <meta charset="UTF-8">
   <title>Gallery</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
+  <link rel="stylesheet" href="js/styles.css">
   <script src="js/config.js"></script>
   <script src="js/app.js"></script>
-
   <style>
-    body {
-      margin: 0;
-      padding-top: 64px;
-      background: #05060A;
-      color: white;
-      font-family: Inter, sans-serif;
-    }
-
-    a {
-      color: #9CA3AF;
-      text-decoration: none;
-      padding: 1rem;
-      display: inline-block;
-    }
-
-    .nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 64px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 1.5rem;
-      background: rgba(5, 6, 10, .85);
-      backdrop-filter: blur(10px);
-      z-index: 1000;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: .85rem;
-      color: inherit;
-      text-decoration: none;
-      padding: 0;
-    }
-
-    .brand img {
-      height: 44px;
-      width: auto;
-    }
-
-    .brand h1 {
-      font-size: 1.15rem;
-      font-weight: 600;
-    }
-
-    .burger {
-      font-size: 1.4rem;
-      cursor: pointer;
-    }
-
-    .menu {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, .92);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 1.5rem;
-      transform: translateY(-100%);
-      transition: .35s ease;
-      z-index: 999;
-    }
-
-    .menu.open {
-      transform: translateY(0);
-    }
-
-    .menu button {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 1.2rem;
-      cursor: pointer;
-    }
-
-    .menu a {
-      margin-top: 2rem;
-      color: #9CA3AF;
-    }
-
-    .grid {
+    .masonry {
       columns: 4 260px;
       column-gap: 1rem;
       padding: 1rem;
+      padding-top: 88px;
     }
 
-    .grid img,
-    .grid video {
+    .masonry img,
+    .masonry video {
       width: 100%;
       margin-bottom: 1rem;
       border-radius: 12px;
       cursor: pointer;
       background: #111827;
+    }
+
+    .gallery-back {
+      position: fixed;
+      top: 72px;
+      left: 1rem;
+      z-index: 900;
+      color: #9CA3AF;
+      text-decoration: none;
+      background: rgba(5, 6, 10, .7);
+      padding: .5rem .75rem;
+      border-radius: 8px;
     }
 
     .lightbox {
@@ -170,8 +96,9 @@
     <a data-contact target="_blank">Contact</a>
   </div>
 
-  <a href="javascript:history.back()">← Back</a>
-  <div class="grid" id="gallery"></div>
+  <a href="javascript:history.back()" class="gallery-back">← Back</a>
+
+  <div class="masonry" id="gallery"></div>
 
   <div class="lightbox" id="lb">
     <div class="box">
@@ -184,54 +111,46 @@
   </div>
 
   <script>
+    const sport = qs("sport");
+    const team = qs("team");
+    const eventName = qs("event");
     const gallery = document.getElementById("gallery");
-    const lightbox = document.getElementById("lb");
+    const lb = document.getElementById("lb");
     const mediaBox = document.getElementById("mediaBox");
 
     let files = [];
     let urls = [];
     let index = 0;
 
-    async function loadGalleryPage() {
-      const data = await loadData();
-      const sportSlug = qs("sport");
-      const teamSlug = qs("team");
-      const eventSlug = qs("event");
-      const sport = findSport(data, sportSlug);
-      const team = findTeam(sport, teamSlug);
-      const event = findEvent(team, eventSlug);
+    async function load() {
+      await buildMenu();
 
-      buildMenu(data);
+      const listed = await listR2(joinPath(sport, team, eventName));
 
-      if (!sport || !team || !event) {
-        showEmpty(gallery, "Gallery not found. Check data.json.");
-        return;
-      }
-
-      files = (event.files || []).filter(isMedia);
-      urls = files.map(file => eventFileUrl(sport, team, event, file));
+      files = listed.files.filter(file => isMedia(file.name));
+      urls = files.map(file => mediaUrl(file.key));
 
       if (!files.length) {
         showEmpty(gallery, "No media found for this event yet.");
         return;
       }
 
-      files.forEach((file, i) => {
+      files.forEach((file, currentIndex) => {
         let element;
 
-        if (isVideo(file)) {
+        if (isVideo(file.name)) {
           element = document.createElement("video");
-          element.src = urls[i];
+          element.src = urls[currentIndex];
           element.muted = true;
           element.playsInline = true;
           element.preload = "metadata";
         } else {
           element = document.createElement("img");
-          element.src = urls[i];
+          element.src = urls[currentIndex];
           element.loading = "lazy";
         }
 
-        element.onclick = () => openLB(i);
+        element.onclick = () => openLB(currentIndex);
         gallery.appendChild(element);
       });
     }
@@ -242,7 +161,7 @@
       const file = files[index];
       let element;
 
-      if (isVideo(file)) {
+      if (isVideo(file.name)) {
         element = document.createElement("video");
         element.src = urls[index];
         element.controls = true;
@@ -255,38 +174,38 @@
       mediaBox.appendChild(element);
     }
 
-    function openLB(i) {
-      index = i;
+    function openLB(currentIndex) {
+      index = currentIndex;
       renderCurrent();
-      lightbox.classList.add("open");
+      lb.classList.add("open");
     }
 
     function closeLB() {
-      lightbox.classList.remove("open");
+      lb.classList.remove("open");
       mediaBox.innerHTML = "";
     }
 
     function downloadCurrent() {
       const anchor = document.createElement("a");
       anchor.href = urls[index];
-      anchor.download = files[index];
+      anchor.download = files[index].name;
       anchor.target = "_blank";
       anchor.click();
     }
 
     document.addEventListener("keydown", event => {
-      if (!lightbox.classList.contains("open")) return;
+      if (!lb.classList.contains("open")) return;
 
       if (event.key === "ArrowRight") openLB((index + 1) % files.length);
       if (event.key === "ArrowLeft") openLB((index - 1 + files.length) % files.length);
       if (event.key === "Escape") closeLB();
     });
 
-    lightbox.onclick = event => {
-      if (event.target === lightbox) closeLB();
+    lb.onclick = event => {
+      if (event.target === lb) closeLB();
     };
 
-    loadGalleryPage().catch(error => {
+    load().catch(error => {
       console.error(error);
       showEmpty(gallery, error.message);
     });
