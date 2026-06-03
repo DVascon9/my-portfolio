@@ -1,1 +1,295 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Gallery</title><meta name="viewport" content="width=device-width, initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"><script src="js/config.js"></script><script src="js/app.js"></script><style>body{margin:0;padding-top:64px;background:#05060A;color:white;font-family:Inter,sans-serif}a{color:#9CA3AF;text-decoration:none;padding:1rem;display:inline-block}.nav{position:fixed;top:0;left:0;right:0;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;background:rgba(5,6,10,.85);backdrop-filter:blur(10px);z-index:1000}.brand{display:flex;align-items:center;gap:.85rem;color:inherit;text-decoration:none;padding:0}.brand img{height:44px;width:auto}.brand h1{font-size:1.15rem;font-weight:600}.burger{font-size:1.4rem;cursor:pointer}.menu{position:fixed;inset:0;background:rgba(0,0,0,.92);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1.5rem;transform:translateY(-100%);transition:.35s ease;z-index:999}.menu.open{transform:translateY(0)}.menu button{background:none;border:none;color:white;font-size:1.2rem;cursor:pointer}.menu a{margin-top:2rem;color:#9CA3AF}.grid{columns:4 260px;column-gap:1rem;padding:1rem}.grid img,.grid video{width:100%;margin-bottom:1rem;border-radius:12px;cursor:pointer;background:#111827}.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:2000}.lightbox.open{display:flex}.box{background:#0b0b0b;padding:1rem;border-radius:16px}.box img,.box video{max-width:80vw;max-height:70vh}.controls{display:flex;justify-content:space-between;gap:.75rem;margin-top:.75rem}button{background:#1f2937;border:none;color:white;padding:.5rem .9rem;border-radius:8px;cursor:pointer}</style></head><body><div class="nav"><a class="brand" href="index.html"><img src="assets/DVascon_Productions_Logo.png" alt="DVascon Productions logo"><h1 data-site-title>DVascon Productions</h1></a><i class="fa-solid fa-bars burger" onclick="toggleMenu()"></i></div><div class="menu" id="menu"><div id="menuSports"></div><a data-contact target="_blank">Contact</a></div><a href="javascript:history.back()">← Back</a><div class="grid" id="gallery"></div><div class="lightbox" id="lb"><div class="box"><div id="mediaBox"></div><div class="controls"><button onclick="downloadCurrent()">⬇ Download</button><button onclick="closeLB()">✕</button></div></div></div><script>const sport=qs("sport"),team=qs("team"),eventName=qs("event");const gallery=document.getElementById("gallery"),lb=document.getElementById("lb"),mediaBox=document.getElementById("mediaBox");let files=[],urls=[],index=0;async function load(){await buildMenu();const listed=await listR2(joinPath(sport,team,eventName));files=listed.files.filter(f=>isMedia(f.name));urls=files.map(f=>mediaUrl(f.key));if(!files.length){showEmpty(gallery,"No media found for this event yet.");return;}files.forEach((file,i)=>{let el;if(isVideo(file.name)){el=document.createElement("video");el.src=urls[i];el.muted=true;el.playsInline=true;el.preload="metadata";}else{el=document.createElement("img");el.src=urls[i];el.loading="lazy";}el.onclick=()=>openLB(i);gallery.appendChild(el);});}function renderCurrent(){mediaBox.innerHTML="";const file=files[index];let el;if(isVideo(file.name)){el=document.createElement("video");el.src=urls[index];el.controls=true;el.autoplay=true;}else{el=document.createElement("img");el.src=urls[index];}mediaBox.appendChild(el);}function openLB(i){index=i;renderCurrent();lb.classList.add("open");}function closeLB(){lb.classList.remove("open");mediaBox.innerHTML="";}function downloadCurrent(){const a=document.createElement("a");a.href=urls[index];a.download=files[index].name;a.target="_blank";a.click();}document.addEventListener("keydown",e=>{if(!lb.classList.contains("open"))return;if(e.key==="ArrowRight")openLB((index+1)%files.length);if(e.key==="ArrowLeft")openLB((index-1+files.length)%files.length);if(e.key==="Escape")closeLB();});lb.onclick=e=>{if(e.target===lb)closeLB()};load().catch(err=>{console.error(err);showEmpty(gallery,err.message);});</script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Gallery</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      padding-top: 64px;
+      background: #05060A;
+      color: white;
+      font-family: Inter, sans-serif;
+    }
+
+    a {
+      color: #9CA3AF;
+      text-decoration: none;
+      padding: 1rem;
+      display: inline-block;
+    }
+
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+      background: rgba(5, 6, 10, .85);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: .85rem;
+      color: inherit;
+      text-decoration: none;
+      padding: 0;
+    }
+
+    .brand img {
+      height: 44px;
+      width: auto;
+    }
+
+    .brand h1 {
+      font-size: 1.15rem;
+      font-weight: 600;
+    }
+
+    .burger {
+      font-size: 1.4rem;
+      cursor: pointer;
+    }
+
+    .menu {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .92);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 1.5rem;
+      transform: translateY(-100%);
+      transition: .35s ease;
+      z-index: 999;
+    }
+
+    .menu.open {
+      transform: translateY(0);
+    }
+
+    .menu button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    .menu a {
+      margin-top: 2rem;
+      color: #9CA3AF;
+    }
+
+    .grid {
+      columns: 4 260px;
+      column-gap: 1rem;
+      padding: 1rem;
+    }
+
+    .grid img,
+    .grid video {
+      width: 100%;
+      margin-bottom: 1rem;
+      border-radius: 12px;
+      cursor: pointer;
+      background: #111827;
+    }
+
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+
+    .lightbox.open {
+      display: flex;
+    }
+
+    .box {
+      background: #0b0b0b;
+      padding: 1rem;
+      border-radius: 16px;
+    }
+
+    .box img,
+    .box video {
+      max-width: 80vw;
+      max-height: 70vh;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      gap: .75rem;
+      margin-top: .75rem;
+    }
+
+    button {
+      background: #1f2937;
+      border: none;
+      color: white;
+      padding: .5rem .9rem;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="nav">
+    <a class="brand" href="index.html">
+      <img src="assets/DVascon_Productions_Logo.png" alt="DVascon Productions logo">
+      <h1 data-site-title>DVascon Productions</h1>
+    </a>
+
+    <i class="fa-solid fa-bars burger" onclick="toggleMenu()"></i>
+  </div>
+
+  <div class="menu" id="menu">
+    <div id="menuSports"></div>
+    <a data-contact target="_blank">Contact</a>
+  </div>
+
+  <a href="javascript:history.back()">← Back</a>
+  <div class="grid" id="gallery"></div>
+
+  <div class="lightbox" id="lb">
+    <div class="box">
+      <div id="mediaBox"></div>
+      <div class="controls">
+        <button onclick="downloadCurrent()">⬇ Download</button>
+        <button onclick="closeLB()">✕</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const gallery = document.getElementById("gallery");
+    const lightbox = document.getElementById("lb");
+    const mediaBox = document.getElementById("mediaBox");
+
+    let files = [];
+    let urls = [];
+    let index = 0;
+
+    async function loadGalleryPage() {
+      const data = await loadData();
+      const sportSlug = qs("sport");
+      const teamSlug = qs("team");
+      const eventSlug = qs("event");
+      const sport = findSport(data, sportSlug);
+      const team = findTeam(sport, teamSlug);
+      const event = findEvent(team, eventSlug);
+
+      buildMenu(data);
+
+      if (!sport || !team || !event) {
+        showEmpty(gallery, "Gallery not found. Check data.json.");
+        return;
+      }
+
+      files = (event.files || []).filter(isMedia);
+      urls = files.map(file => eventFileUrl(sport, team, event, file));
+
+      if (!files.length) {
+        showEmpty(gallery, "No media found for this event yet.");
+        return;
+      }
+
+      files.forEach((file, i) => {
+        let element;
+
+        if (isVideo(file)) {
+          element = document.createElement("video");
+          element.src = urls[i];
+          element.muted = true;
+          element.playsInline = true;
+          element.preload = "metadata";
+        } else {
+          element = document.createElement("img");
+          element.src = urls[i];
+          element.loading = "lazy";
+        }
+
+        element.onclick = () => openLB(i);
+        gallery.appendChild(element);
+      });
+    }
+
+    function renderCurrent() {
+      mediaBox.innerHTML = "";
+
+      const file = files[index];
+      let element;
+
+      if (isVideo(file)) {
+        element = document.createElement("video");
+        element.src = urls[index];
+        element.controls = true;
+        element.autoplay = true;
+      } else {
+        element = document.createElement("img");
+        element.src = urls[index];
+      }
+
+      mediaBox.appendChild(element);
+    }
+
+    function openLB(i) {
+      index = i;
+      renderCurrent();
+      lightbox.classList.add("open");
+    }
+
+    function closeLB() {
+      lightbox.classList.remove("open");
+      mediaBox.innerHTML = "";
+    }
+
+    function downloadCurrent() {
+      const anchor = document.createElement("a");
+      anchor.href = urls[index];
+      anchor.download = files[index];
+      anchor.target = "_blank";
+      anchor.click();
+    }
+
+    document.addEventListener("keydown", event => {
+      if (!lightbox.classList.contains("open")) return;
+
+      if (event.key === "ArrowRight") openLB((index + 1) % files.length);
+      if (event.key === "ArrowLeft") openLB((index - 1 + files.length) % files.length);
+      if (event.key === "Escape") closeLB();
+    });
+
+    lightbox.onclick = event => {
+      if (event.target === lightbox) closeLB();
+    };
+
+    loadGalleryPage().catch(error => {
+      console.error(error);
+      showEmpty(gallery, error.message);
+    });
+  </script>
+</body>
+</html>

@@ -1,41 +1,66 @@
-# DVascon Productions — Dynamic R2 Version
+# DVascon Productions Portfolio
 
-This version reads your Cloudflare R2 bucket directly through a Cloudflare Pages Function. You do not need to manually update `data.json`.
+This is the static JSON + Cloudflare R2 version.
 
-## Required R2 structure
-Your R2 bucket is named `galleries`. Inside it, organize media like this:
+It does not require Cloudflare Pages Functions or R2 bindings.
+
+## Upload to GitHub
+
+Upload this whole folder to your GitHub repo.
+
+Cloudflare Pages settings:
+
+```text
+Framework preset: None
+Build command: leave blank
+Output directory: /
+```
+
+## R2 media structure
+
+Your R2 bucket is named `galleries`.
+
+Inside that bucket, organize media like this:
 
 ```text
 volleyball/
   omaha-supernovas/
     2026-01-16-vs-atlanta-vibe/
-      photo-001.jpg
-      photo-002.jpg
+      Ava-Martin.jpg
 ```
 
-## Cloudflare Pages R2 binding
-In Cloudflare Pages:
-
-```text
-Pages project → Settings → Functions → R2 bucket bindings
-```
-
-Add a binding:
-
-```text
-Variable name: GALLERIES
-R2 bucket: galleries
-```
-
-Deploy again after adding the binding.
-
-## Config
-Edit `js/config.js` and set `MEDIA_BASE_URL` to your R2 Public Development URL or custom media domain.
-
-Because your bucket is named `galleries`, keep:
+Because the bucket itself is named `galleries`, keep this in `js/config.js`:
 
 ```js
 const MEDIA_ROOT = "";
 ```
 
-Only change it to `"galleries"` if you created an actual folder named `galleries` inside the bucket.
+## Updating galleries
+
+Whenever you add a new gallery, update `data.json`.
+
+Each gallery entry should list the exact filenames in R2.
+
+Example:
+
+```json
+{
+  "title": "vs Atlanta Vibe",
+  "slug": "2026-01-16-vs-atlanta-vibe",
+  "date": "2026-01-16",
+  "cover": "Ava-Martin.jpg",
+  "files": [
+    "Ava-Martin.jpg"
+  ]
+}
+```
+
+## Optional automatic data.json generation
+
+If you keep a local copy of your R2 folder structure, you can run:
+
+```bash
+node generate.js ./galleries data.json
+```
+
+Then commit the updated `data.json` to GitHub.
