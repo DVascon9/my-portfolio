@@ -1,34 +1,41 @@
-# DVascon Productions Portfolio
+# DVascon Productions — Dynamic R2 Version
 
-Clean setup:
-GitHub → Cloudflare Pages → dvascon.net  
-Cloudflare R2 stores gallery media.
+This version reads your Cloudflare R2 bucket directly through a Cloudflare Pages Function. You do not need to manually update `data.json`.
 
-## Keep these JS files
-
-Use:
-- js/config.js
-- js/app.js
-
-Do not use the old js/cloudflare.js with this version.
-
-## R2 folder structure
-
-Because `MEDIA_ROOT` is set to `galleries`, your R2 paths should look like:
+## Required R2 structure
+Your R2 bucket is named `galleries`. Inside it, organize media like this:
 
 ```text
-galleries/volleyball/omaha-supernovas/2026-01-16-vs-atlanta-vibe/Ava-Martin.jpg
+volleyball/
+  omaha-supernovas/
+    2026-01-16-vs-atlanta-vibe/
+      photo-001.jpg
+      photo-002.jpg
 ```
 
-## When you add a new gallery
+## Cloudflare Pages R2 binding
+In Cloudflare Pages:
 
-1. Upload photos/videos into R2.
-2. Add the gallery info and filenames to `data.json`.
-3. Push to GitHub.
-4. Cloudflare Pages redeploys automatically.
+```text
+Pages project → Settings → Functions → R2 bucket bindings
+```
 
-## Cloudflare Pages settings
+Add a binding:
 
-Framework preset: None  
-Build command: leave blank  
-Build output directory: /
+```text
+Variable name: GALLERIES
+R2 bucket: galleries
+```
+
+Deploy again after adding the binding.
+
+## Config
+Edit `js/config.js` and set `MEDIA_BASE_URL` to your R2 Public Development URL or custom media domain.
+
+Because your bucket is named `galleries`, keep:
+
+```js
+const MEDIA_ROOT = "";
+```
+
+Only change it to `"galleries"` if you created an actual folder named `galleries` inside the bucket.
