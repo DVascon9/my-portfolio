@@ -1,0 +1,15 @@
+{
+  "name": "my-portfolio",
+  "compatibility_date": "2026-06-04",
+
+  "assets": {
+    "directory": "."
+  },
+
+  "r2_buckets": [
+    {
+      "binding": "GALLERIES",
+      "bucket_name": "galleries"
+    }
+  ]
+}
