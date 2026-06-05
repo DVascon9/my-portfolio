@@ -23,14 +23,11 @@ export default {
         limit: 1000
       });
 
-      const folders = (listed.delimitedPrefixes || []).filter(folder => {
-        const name = folder
-          .replace(/\/$/, "")
-          .split("/")
-          .pop();
+      let folders = listed.delimitedPrefixes || [];
 
-        return !name.startsWith(".");
-      });
+      if (prefix === "") {
+        folders = folders.filter(folder => folder !== ".wrangler/");
+      }
 
       return Response.json({
         prefix,
