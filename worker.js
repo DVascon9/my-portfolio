@@ -1,3 +1,9 @@
+function folderLabelForWorker(value) {
+  return String(value || "")
+    .replace(/-/g, " ")
+    .replace(/\b\w/g, character => character.toUpperCase());
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -35,7 +41,7 @@ export default {
         }
       });
     }
-    
+
     if (url.pathname === "/api/search") {
       if (!env.GALLERIES) {
         return Response.json(
@@ -44,42 +50,49 @@ export default {
         );
       }
 
-      const listed = await env.GALLERIES.list({
-        limit: 1000
-     });
-
       const results = [];
 
-      for (const object of listed.objects || []) {
-        const parts = object.key.split("/");
+      const sportsList = await env.GALLERIES.list({
+        delimiter: "/",
+        limit: 1000
+      });
 
-        if (parts.length < 4) continue;
-        if (parts.some(part => part.startsWith("."))) continue;
+      const sports = (sportsList.delimitedPrefixes || [])
+        .filter(folder => folder !== ".wrangler/");
 
-        const [sport, team, event] = parts;
+      for (const sportPrefix of sports) {
+        const sport = sportPrefix.replace(/\/$/, "");
 
-        results.push({
-          sport,
-          team,
-          event,
-          label: `${folderLabelForWorker(sport)} • ${folderLabelForWorker(team)} • ${folderLabelForWorker(event)}`,
-          url: `gallery.html?sport=${encodeURIComponent(sport)}&team=${encodeURIComponent(team)}&event=${encodeURIComponent(event)}`
+        const teamsList = await env.GALLERIES.list({
+          prefix: `${sport}/`,
+          delimiter: "/",
+          limit: 1000
         });
+
+        for (const teamPrefix of teamsList.delimitedPrefixes || []) {
+          const team = teamPrefix.replace(/\/$/, "").split("/").pop();
+
+          const eventsList = await env.GALLERIES.list({
+            prefix: `${sport}/${team}/`,
+            delimiter: "/",
+            limit: 1000
+          });
+
+          for (const eventPrefix of eventsList.delimitedPrefixes || []) {
+            const event = eventPrefix.replace(/\/$/, "").split("/").pop();
+
+            results.push({
+              sport,
+              team,
+              event,
+              label: `${folderLabelForWorker(sport)} • ${folderLabelForWorker(team)} • ${folderLabelForWorker(event)}`,
+              url: `gallery.html?sport=${encodeURIComponent(sport)}&team=${encodeURIComponent(team)}&event=${encodeURIComponent(event)}`
+            });
+          }
+        }
       }
 
-      const uniqueResults = Array.from(
-        new Map(results.map(item => [item.url, item])).values()
-      );
-
-      return Response.json({
-        results: uniqueResults
-     });
-    }
-
-    function folderLabelForWorker(value) {
-      return String(value || "")
-        .replace(/-/g, " ")
-        .replace(/\b\w/g, character => character.toUpperCase());
+      return Response.json({ results });
     }
 
     if (url.pathname === "/api/list") {
