@@ -98,20 +98,20 @@
 
   <script>
     async function loadSports() {
-      const grid = document.getElementById("sports");
+     const grid = document.getElementById("sports");
 
-     showLoading(grid, "Loading sports...");
-
+      showLoading(grid, "Loading sports...");
 
       await buildMenu();
 
-      const root = await listR2("");
-      const grid = document.getElementById("sports");
+     const root = await listR2("");
 
       if (!root.folders.length) {
         showEmpty(grid, "No folders found in R2 yet.");
         return;
       }
+
+      grid.innerHTML = "";
 
       root.folders.forEach(folder => {
         const sport = getFolderName(folder);
@@ -124,9 +124,10 @@
             <div>${folderLabel(sport)}</div>
           </div>
         `;
+
         card.onclick = () => {
           location.href = `sport.html?sport=${encodeURIComponent(sport)}`;
-        };
+       };
 
         grid.appendChild(card);
       });

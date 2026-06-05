@@ -124,7 +124,7 @@
 
     async function load() {
       showLoading(gallery, "Loading gallery...");
-      
+
       await buildMenu();
 
       const listed = await listR2(joinPath(sport, team, eventName));
@@ -133,28 +133,30 @@
       urls = files.map(file => mediaUrl(file.key));
 
       if (!files.length) {
-        showEmpty(gallery, "No media found for this event yet.");
-        return;
-      }
+      showEmpty(gallery, "No media found for this event yet.");
+      return;
+    }
 
-      files.forEach((file, currentIndex) => {
-        let element;
+    gallery.innerHTML = "";
 
-        if (isVideo(file.name)) {
-          element = document.createElement("video");
-          element.src = urls[currentIndex];
-          element.muted = true;
-          element.playsInline = true;
-          element.preload = "metadata";
-        } else {
-          element = document.createElement("img");
-          element.src = urls[currentIndex];
-          element.loading = "lazy";
-        }
+    files.forEach((file, currentIndex) => {
+      let element;
 
-        element.onclick = () => openLB(currentIndex);
-        gallery.appendChild(element);
-      });
+      if (isVideo(file.name)) {
+       element = document.createElement("video");
+       element.src = urls[currentIndex];
+       element.muted = true;
+        element.playsInline = true;
+        element.preload = "metadata";
+     } else {
+        element = document.createElement("img");
+        element.src = urls[currentIndex];
+        element.loading = "lazy";
+     }
+
+     element.onclick = () => openLB(currentIndex);
+     gallery.appendChild(element);
+     });
     }
 
     function renderCurrent() {
