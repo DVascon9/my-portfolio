@@ -17,20 +17,23 @@ export default {
         );
       }
 
-      const listed = await env.GALLERIES.list({
-        prefix,
-        delimiter: "/",
-        limit: 1000
-      });
+      const folders = (listed.delimitedPrefixes || []).filter(folder => {
+        const name = folder
+          .replace(/\/$/, "")
+          .split("/")
+          .pop();
 
-      return Response.json({
-        prefix,
-        folders: listed.delimitedPrefixes || [],
-        files: listed.objects.map(object => ({
+         return !name.startsWith(".");
+        });
+
+        return Response.json({
+         prefix,
+         folders,
+         files: (listed.objects || []).map(object => ({
           key: object.key,
           name: object.key.split("/").pop(),
-          size: object.size,
-          uploaded: object.uploaded
+         size: object.size,
+         uploaded: object.uploaded
         }))
       });
     }
