@@ -2,6 +2,40 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
+    if (url.pathname === "/api/download") {
+      const key = url.searchParams.get("key");
+
+      if (!key) {
+        return new Response("Missing file key", { status: 400 });
+      }
+
+      if (!env.GALLERIES) {
+        return new Response("Missing GALLERIES R2 binding", {
+          status: 500
+        });
+      }
+
+      const object = await env.GALLERIES.get(key);
+
+      if (!object) {
+        return new Response("File not found", {
+          status: 404
+        });
+      }
+
+      const filename = key.split("/").pop();
+
+      return new Response(object.body, {
+        headers: {
+          "Content-Type":
+            object.httpMetadata?.contentType ||
+            "application/octet-stream",
+          "Content-Disposition":
+            `attachment; filename="${filename}"`
+        }
+      });
+    }
+
     if (url.pathname === "/api/list") {
       let prefix = url.searchParams.get("prefix") || "";
       prefix = prefix.replace(/^\/+/, "");
