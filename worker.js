@@ -35,6 +35,52 @@ export default {
         }
       });
     }
+    
+    if (url.pathname === "/api/search") {
+      if (!env.GALLERIES) {
+        return Response.json(
+          { error: "Missing GALLERIES R2 binding" },
+          { status: 500 }
+        );
+      }
+
+      const listed = await env.GALLERIES.list({
+        limit: 1000
+     });
+
+      const results = [];
+
+      for (const object of listed.objects || []) {
+        const parts = object.key.split("/");
+
+        if (parts.length < 4) continue;
+        if (parts.some(part => part.startsWith("."))) continue;
+
+        const [sport, team, event] = parts;
+
+        results.push({
+          sport,
+          team,
+          event,
+          label: `${folderLabelForWorker(sport)} • ${folderLabelForWorker(team)} • ${folderLabelForWorker(event)}`,
+          url: `gallery.html?sport=${encodeURIComponent(sport)}&team=${encodeURIComponent(team)}&event=${encodeURIComponent(event)}`
+        });
+      }
+
+      const uniqueResults = Array.from(
+        new Map(results.map(item => [item.url, item])).values()
+      );
+
+      return Response.json({
+        results: uniqueResults
+     });
+    }
+
+    function folderLabelForWorker(value) {
+      return String(value || "")
+        .replace(/-/g, " ")
+        .replace(/\b\w/g, character => character.toUpperCase());
+    }
 
     if (url.pathname === "/api/list") {
       let prefix = url.searchParams.get("prefix") || "";

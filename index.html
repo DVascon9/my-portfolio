@@ -89,6 +89,25 @@
   </section>
 
   <section class="section">
+
+    <input
+      id="search"
+      type="text"
+      placeholder="Search sports, teams, events..."
+      style="
+        width:100%;
+        padding:1rem;
+        margin-bottom:2rem;
+        border-radius:10px;
+        border:none;
+        background:#111827;
+        color:white;
+        font-size:1rem;
+      "
+    >
+
+    <div id="searchResults" class="search-results"></div>
+
     <div class="grid" id="sports"></div>
   </section>
 
@@ -137,6 +156,60 @@
       console.error(error);
       showEmpty(document.getElementById("sports"), error.message);
     });
+
+    const searchInput = document.getElementById("search");
+    const searchResults = document.getElementById("searchResults");
+
+    let searchableGalleries = [];
+
+    async function loadSearchIndex() {
+      const response = await fetch("/api/search", {
+        cache: "no-store"
+      });
+
+      if (!response.ok) {
+        console.error("Could not load search index");
+        return;
+     }
+
+      const data = await response.json();
+      searchableGalleries = data.results || [];
+    }
+
+    function renderSearchResults(query) {
+     const normalizedQuery = query.trim().toLowerCase();
+     searchResults.innerHTML = "";
+
+     if (!normalizedQuery) return;
+
+     const matches = searchableGalleries
+       .filter(item => item.label.toLowerCase().includes(normalizedQuery))
+       .slice(0, 10);
+
+     if (!matches.length) {
+        searchResults.innerHTML = `
+         <p style="color:#9CA3AF;">No results found.</p>
+        `;
+        return;
+      }
+
+     matches.forEach(item => {
+        const result = document.createElement("div");
+       result.className = "search-result";
+        result.textContent = item.label;
+        result.onclick = () => {
+          location.href = item.url;
+       };
+
+        searchResults.appendChild(result);
+     });
+    }
+
+    searchInput.addEventListener("input", event => {
+      renderSearchResults(event.target.value);
+    });
+
+    loadSearchIndex();
   </script>
 </body>
 </html>

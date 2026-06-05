@@ -201,3 +201,22 @@ body {
   font-size: .8rem;
   color: #9CA3AF;
 }
+
+.search-results {
+  display: grid;
+  gap: .75rem;
+  margin-bottom: 2rem;
+}
+
+.search-result {
+  padding: 1rem;
+  border-radius: 12px;
+  background: #111827;
+  cursor: pointer;
+  transition: .25s;
+}
+
+.search-result:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, .45);
+}
