@@ -189,12 +189,26 @@
       mediaBox.innerHTML = "";
     }
 
-    function downloadCurrent() {
-      const anchor = document.createElement("a");
-      anchor.href = urls[index];
-      anchor.download = files[index].name;
-      anchor.target = "_blank";
-      anchor.click();
+    async function downloadCurrent() {
+      try {
+        const response = await fetch(urls[index]);
+        const blob = await response.blob();
+
+        const blobUrl = URL.createObjectURL(blob);
+
+        const anchor = document.createElement("a");
+        anchor.href = blobUrl;
+        anchor.download = files[index].name;
+
+        document.body.appendChild(anchor);
+        anchor.click();
+       anchor.remove();
+
+        URL.revokeObjectURL(blobUrl);
+      } catch (error) {
+        console.error(error);
+       alert("Download failed.");
+      }
     }
 
     document.addEventListener("keydown", event => {
