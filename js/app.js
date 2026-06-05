@@ -90,6 +90,16 @@ function showEmpty(container, message) {
   `;
 }
 
+function showLoading(container, message = "Loading...") {
+  if (!container) return;
+
+  container.innerHTML = `
+    <p style="color:#9CA3AF;line-height:1.6">
+      ${message}
+    </p>
+  `;
+}
+
 async function listR2(prefix = "") {
   const finalPrefix = joinPath(MEDIA_ROOT, prefix);
   const response = await fetch(`/api/list?prefix=${encodeURIComponent(finalPrefix)}`, {

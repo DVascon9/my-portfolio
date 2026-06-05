@@ -29,15 +29,22 @@ export default {
         folders = folders.filter(folder => folder !== ".wrangler/");
       }
 
-      return Response.json({
-        prefix,
-        folders,
-        files: (listed.objects || []).map(object => ({
+      folders = folders.sort().reverse();
+
+      const files = (listed.objects || [])
+        .filter(object => !object.key.endsWith(".DS_Store"))
+        .filter(object => !object.key.split("/").pop().startsWith("."))
+        .map(object => ({
           key: object.key,
           name: object.key.split("/").pop(),
           size: object.size,
           uploaded: object.uploaded
-        }))
+        }));
+
+      return Response.json({
+        prefix,
+        folders,
+        files
       });
     }
 

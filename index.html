@@ -98,6 +98,11 @@
 
   <script>
     async function loadSports() {
+      const grid = document.getElementById("sports");
+
+     showLoading(grid, "Loading sports...");
+
+
       await buildMenu();
 
       const root = await listR2("");

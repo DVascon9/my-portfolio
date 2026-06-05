@@ -123,6 +123,8 @@
     let index = 0;
 
     async function load() {
+      showLoading(gallery, "Loading gallery...");
+      
       await buildMenu();
 
       const listed = await listR2(joinPath(sport, team, eventName));
