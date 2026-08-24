@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <title>Private Gallery</title>
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  >
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap"
+    rel="stylesheet"
+  >
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  >
+
+  <link
+    rel="stylesheet"
+    href="js/styles.css"
+  >
+
+  <style>
+
+    .private-gallery {
+
+      columns:
+        4 260px;
+
+      column-gap:
+        1rem;
+
+      padding:
+        100px 1rem 2rem;
+
+    }
+
+
+    .private-gallery img,
+    .private-gallery video {
+
+      width: 100%;
+
+      margin-bottom: 1rem;
+
+      border-radius: 12px;
+
+      cursor: pointer;
+
+      background: #111827;
+
+    }
+
+
+    .private-back {
+
+      position: fixed;
+
+      top: 72px;
+
+      left: 1rem;
+
+      z-index: 900;
+
+      color: #9CA3AF;
+
+      text-decoration: none;
+
+      background:
+        rgba(5,6,10,.7);
+
+      padding:
+        .5rem .75rem;
+
+      border-radius: 8px;
+
+    }
+
+
+    .private-title {
+
+      position: absolute;
+
+      top: 72px;
+
+      left: 50%;
+
+      transform:
+        translateX(-50%);
+
+      color: white;
+
+      z-index: 901;
+
+      font-size: 1rem;
+
+      font-weight: 500;
+
+    }
+
+
+    .lightbox {
+
+      position: fixed;
+
+      inset: 0;
+
+      background:
+        rgba(0,0,0,.88);
+
+      display: none;
+
+      align-items: center;
+
+      justify-content: center;
+
+      z-index: 2000;
+
+    }
+
+
+    .lightbox.open {
+
+      display: flex;
+
+    }
+
+
+    .box {
+
+      background: #0b0b0b;
+
+      padding: 1rem;
+
+      border-radius: 16px;
+
+    }
+
+
+    .box img,
+    .box video {
+
+      max-width: 80vw;
+
+      max-height: 70vh;
+
+    }
+
+
+    .controls {
+
+      display: flex;
+
+      justify-content:
+        space-between;
+
+      gap: .75rem;
+
+      margin-top: .75rem;
+
+    }
+
+
+    button {
+
+      background: #1f2937;
+
+      border: none;
+
+      color: white;
+
+      padding:
+        .5rem .9rem;
+
+      border-radius: 8px;
+
+      cursor: pointer;
+
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+
+  <div class="nav">
+
+    <a
+      class="brand"
+      href="index.html"
+    >
+
+      <img
+        src="assets/DVascon_Productions_Logo.png"
+        alt="DVascon Productions logo"
+      >
+
+      <h1>
+        DVascon Productions
+      </h1>
+
+    </a>
+
+    <i
+      class="fa-solid fa-bars burger"
+      onclick="toggleMenu()"
+    ></i>
+
+  </div>
+
+
+  <div
+    class="menu"
+    id="menu"
+  >
+
+    <div id="menuSports"></div>
+
+  </div>
+
+
+  <a
+    href="private.html"
+    class="private-back"
+  >
+    ← Private Galleries
+  </a>
+
+
+  <div
+    id="privateTitle"
+    class="private-title"
+  >
+    Private Gallery
+  </div>
+
+
+  <div
+    id="gallery"
+    class="private-gallery"
+  ></div>
+
+
+  <div
+    class="lightbox"
+    id="lb"
+  >
+
+    <div class="box">
+
+      <div id="mediaBox"></div>
+
+      <div class="controls">
+
+        <button
+          onclick="downloadCurrent()"
+        >
+          ⬇ Download
+        </button>
+
+        <button
+          onclick="closeLB()"
+        >
+          ✕
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+<script>
+
+function qs(name) {
+
+  return new URLSearchParams(
+    location.search
+  ).get(name) || "";
+
+}
+
+
+const folder =
+  qs("folder");
+
+
+const gallery =
+  document.getElementById(
+    "gallery"
+  );
+
+
+const lb =
+  document.getElementById(
+    "lb"
+  );
+
+
+const mediaBox =
+  document.getElementById(
+    "mediaBox"
+  );
+
+
+const title =
+  document.getElementById(
+    "privateTitle"
+  );
+
+
+let files = [];
+
+let index = 0;
+
+
+const MEDIA_EXTENSIONS =
+  /\.(jpg|jpeg|png|webp|gif|mp4|mov|webm|m4v)$/i;
+
+
+const VIDEO_EXTENSIONS =
+  /\.(mp4|mov|webm|m4v)$/i;
+
+
+/*
+========================================================
+LOAD PRIVATE GALLERY
+========================================================
+*/
+
+async function loadGallery() {
+
+  if (!folder) {
+
+    gallery.innerHTML =
+      `<p style="color:#f87171;">
+        No private gallery selected.
+      </p>`;
+
+    return;
+
+  }
+
+
+  const response =
+    await fetch(
+      `/api/private-list?folder=${
+        encodeURIComponent(folder)
+      }`,
+      {
+        cache: "no-store"
+      }
+    );
+
+
+  if (response.status === 401) {
+
+    location.href =
+      "private.html";
+
+    return;
+
+  }
+
+
+  if (!response.ok) {
+
+    throw new Error(
+      "Could not load private gallery."
+    );
+
+  }
+
+
+  const data =
+    await response.json();
+
+
+  files =
+    data.files.filter(
+      file =>
+        MEDIA_EXTENSIONS.test(
+          file.name
+        )
+    );
+
+
+  const folderName =
+    folder
+      .replace(/^_private\//, "")
+      .replace(/-/g, " ")
+      .replace(/\b\w/g, letter =>
+        letter.toUpperCase()
+      );
+
+
+  title.textContent =
+    folderName;
+
+
+  if (!files.length) {
+
+    gallery.innerHTML =
+      `<p style="color:#9CA3AF;">
+        No media found in this gallery yet.
+      </p>`;
+
+    return;
+
+  }
+
+
+  gallery.innerHTML = "";
+
+
+  files.forEach(
+    (file, currentIndex) => {
+
+      let element;
+
+
+      const url =
+        `/api/private-media?key=${
+          encodeURIComponent(
+            file.key
+          )
+        }`;
+
+
+      if (
+        VIDEO_EXTENSIONS.test(
+          file.name
+        )
+      ) {
+
+        element =
+          document.createElement(
+            "video"
+          );
+
+        element.src = url;
+
+        element.muted = true;
+
+        element.playsInline = true;
+
+        element.preload =
+          "metadata";
+
+      } else {
+
+        element =
+          document.createElement(
+            "img"
+          );
+
+        element.src = url;
+
+        element.loading =
+          "lazy";
+
+      }
+
+
+      element.onclick =
+        () =>
+          openLB(
+            currentIndex
+          );
+
+
+      gallery.appendChild(
+        element
+      );
+
+    }
+  );
+
+}
+
+
+/*
+========================================================
+LIGHTBOX
+========================================================
+*/
+
+function renderCurrent() {
+
+  mediaBox.innerHTML = "";
+
+
+  const file =
+    files[index];
+
+
+  const url =
+    `/api/private-media?key=${
+      encodeURIComponent(
+        file.key
+      )
+    }`;
+
+
+  let element;
+
+
+  if (
+    VIDEO_EXTENSIONS.test(
+      file.name
+    )
+  ) {
+
+    element =
+      document.createElement(
+        "video"
+      );
+
+    element.src = url;
+
+    element.controls = true;
+
+    element.autoplay = true;
+
+  } else {
+
+    element =
+      document.createElement(
+        "img"
+      );
+
+    element.src = url;
+
+  }
+
+
+  mediaBox.appendChild(
+    element
+  );
+
+}
+
+
+function openLB(
+  currentIndex
+) {
+
+  index =
+    currentIndex;
+
+  renderCurrent();
+
+  lb.classList.add(
+    "open"
+  );
+
+}
+
+
+function closeLB() {
+
+  lb.classList.remove(
+    "open"
+  );
+
+  mediaBox.innerHTML =
+    "";
+
+}
+
+
+function downloadCurrent() {
+
+  const key =
+    files[index].key;
+
+
+  const anchor =
+    document.createElement(
+      "a"
+    );
+
+
+  anchor.href =
+    `/api/private-download?key=${
+      encodeURIComponent(
+        key
+      )
+    }`;
+
+
+  anchor.download =
+    files[index].name;
+
+
+  document.body.appendChild(
+    anchor
+  );
+
+
+  anchor.click();
+
+
+  anchor.remove();
+
+}
+
+
+document.addEventListener(
+  "keydown",
+  event => {
+
+    if (
+      !lb.classList.contains(
+        "open"
+      )
+    ) return;
+
+
+    if (
+      event.key ===
+      "ArrowRight"
+    ) {
+
+      openLB(
+        (index + 1) %
+        files.length
+      );
+
+    }
+
+
+    if (
+      event.key ===
+      "ArrowLeft"
+    ) {
+
+      openLB(
+        (index - 1 +
+          files.length) %
+        files.length
+      );
+
+    }
+
+
+    if (
+      event.key ===
+      "Escape"
+    ) {
+
+      closeLB();
+
+    }
+
+  }
+);
+
+
+lb.onclick =
+  event => {
+
+    if (
+      event.target === lb
+    ) {
+
+      closeLB();
+
+    }
+
+  };
+
+
+loadGallery().catch(
+  error => {
+
+    console.error(error);
+
+    gallery.innerHTML =
+      `<p style="color:#f87171;">
+        ${error.message}
+      </p>`;
+
+  }
+);
+
+</script>
+
+</body>
+
+</html>

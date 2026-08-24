@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <title>Private Galleries</title>
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  >
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  >
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  >
+
+  <link
+    rel="stylesheet"
+    href="js/styles.css"
+  >
+
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+
+  <style>
+
+    .private-page {
+      padding: 100px 2rem 3rem;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    .private-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .private-header i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .private-header h2 {
+      margin-bottom: .5rem;
+    }
+
+    .private-header p {
+      color: #9CA3AF;
+    }
+
+    .private-grid {
+      display: grid;
+      grid-template-columns:
+        repeat(auto-fit, minmax(240px, 1fr));
+
+      gap: 1.25rem;
+    }
+
+    .private-card {
+      background: #111827;
+      border-radius: 14px;
+      padding: 2rem;
+      cursor: pointer;
+      transition: transform .2s ease;
+      border: 1px solid rgba(255,255,255,.08);
+      text-align: center;
+    }
+
+    .private-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .private-card i {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .private-card h3 {
+      margin: 0;
+    }
+
+    .private-card p {
+      color: #9CA3AF;
+      font-size: .9rem;
+      margin-top: .5rem;
+    }
+
+    .password-overlay {
+      position: fixed;
+      inset: 0;
+
+      background:
+        rgba(0,0,0,.88);
+
+      display: none;
+
+      align-items: center;
+      justify-content: center;
+
+      z-index: 3000;
+
+      padding: 1rem;
+    }
+
+    .password-overlay.open {
+      display: flex;
+    }
+
+    .password-box {
+      width: min(420px, 100%);
+
+      background: #0b0b0b;
+
+      padding: 2rem;
+
+      border-radius: 18px;
+
+      text-align: center;
+
+      border:
+        1px solid
+        rgba(255,255,255,.1);
+    }
+
+    .password-box i {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .password-box h3 {
+      margin-bottom: .5rem;
+    }
+
+    .password-box p {
+      color: #9CA3AF;
+    }
+
+    .password-box input {
+      width: 100%;
+      box-sizing: border-box;
+
+      padding: .9rem 1rem;
+
+      margin:
+        1rem 0;
+
+      border-radius: 10px;
+
+      border: none;
+
+      background: #111827;
+
+      color: white;
+
+      font-size: 1rem;
+    }
+
+    .password-actions {
+      display: flex;
+      gap: .75rem;
+      justify-content: center;
+    }
+
+    .password-actions button {
+      border: none;
+
+      padding:
+        .7rem 1.2rem;
+
+      border-radius: 9px;
+
+      cursor: pointer;
+
+      background: #1f2937;
+
+      color: white;
+    }
+
+    .password-actions .enter {
+      background: white;
+      color: black;
+    }
+
+    #passwordError {
+      color: #f87171;
+      min-height: 1.4rem;
+      font-size: .9rem;
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+  <div class="nav">
+
+    <a
+      class="brand"
+      href="index.html"
+    >
+
+      <img
+        src="assets/DVascon_Productions_Logo.png"
+        alt="DVascon Productions logo"
+      >
+
+      <h1 data-site-title>
+        DVascon Productions
+      </h1>
+
+    </a>
+
+    <i
+      class="fa-solid fa-bars burger"
+      onclick="toggleMenu()"
+    ></i>
+
+  </div>
+
+
+  <div
+    class="menu"
+    id="menu"
+  >
+
+    <div id="menuSports"></div>
+
+    <a
+      data-contact
+      target="_blank"
+    >
+      Contact
+    </a>
+
+  </div>
+
+
+  <main class="private-page">
+
+    <div class="private-header">
+
+      <i class="fa-solid fa-lock"></i>
+
+      <h2>
+        Private Galleries
+      </h2>
+
+      <p>
+        Select a gallery and enter its password.
+      </p>
+
+    </div>
+
+
+    <div
+      id="privateGrid"
+      class="private-grid"
+    >
+
+      <p style="color:#9CA3AF;">
+        Loading private galleries...
+      </p>
+
+    </div>
+
+  </main>
+
+
+  <!-- PASSWORD WINDOW -->
+
+  <div
+    id="passwordOverlay"
+    class="password-overlay"
+  >
+
+    <div class="password-box">
+
+      <i class="fa-solid fa-lock"></i>
+
+      <h3 id="passwordTitle">
+        Private Gallery
+      </h3>
+
+      <p>
+        Enter the password to continue.
+      </p>
+
+      <input
+        id="passwordInput"
+        type="password"
+        placeholder="Password"
+        autocomplete="current-password"
+      >
+
+      <div
+        id="passwordError"
+      ></div>
+
+      <div class="password-actions">
+
+        <button
+          onclick="closePassword()"
+        >
+          Cancel
+        </button>
+
+        <button
+          class="enter"
+          onclick="submitPassword()"
+        >
+          Unlock
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+<script>
+
+let selectedFolder = "";
+
+
+/*
+========================================================
+LOAD PRIVATE FOLDERS
+========================================================
+*/
+
+async function loadPrivateFolders() {
+
+  const grid =
+    document.getElementById(
+      "privateGrid"
+    );
+
+
+  try {
+
+    await buildMenu();
+
+
+    const response =
+      await fetch(
+        "/api/private-folders",
+        {
+          cache: "no-store"
+        }
+      );
+
+
+    if (!response.ok) {
+      throw new Error(
+        "Could not load private galleries."
+      );
+    }
+
+
+    const data =
+      await response.json();
+
+
+    if (!data.folders.length) {
+
+      grid.innerHTML =
+        `<p style="color:#9CA3AF;">
+          No private galleries yet.
+        </p>`;
+
+      return;
+    }
+
+
+    grid.innerHTML = "";
+
+
+    data.folders.forEach(folder => {
+
+      const card =
+        document.createElement("div");
+
+
+      card.className =
+        "private-card";
+
+
+      const displayName =
+        folder.name
+          .replace(/-/g, " ")
+          .replace(/\b\w/g, letter =>
+            letter.toUpperCase()
+          );
+
+
+      card.innerHTML = `
+
+        <i class="fa-solid fa-folder-lock"></i>
+
+        <h3>
+          ${displayName}
+        </h3>
+
+        <p>
+          Password protected
+        </p>
+
+      `;
+
+
+      card.onclick = () => {
+
+        openPassword(
+          folder.key,
+          displayName
+        );
+
+      };
+
+
+      grid.appendChild(card);
+
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    grid.innerHTML =
+      `<p style="color:#f87171;">
+        ${error.message}
+      </p>`;
+
+  }
+
+}
+
+
+/*
+========================================================
+PASSWORD WINDOW
+========================================================
+*/
+
+function openPassword(folder, name) {
+
+  selectedFolder = folder;
+
+
+  document.getElementById(
+    "passwordTitle"
+  ).textContent = name;
+
+
+  document.getElementById(
+    "passwordInput"
+  ).value = "";
+
+
+  document.getElementById(
+    "passwordError"
+  ).textContent = "";
+
+
+  document.getElementById(
+    "passwordOverlay"
+  ).classList.add("open");
+
+
+  setTimeout(() => {
+
+    document.getElementById(
+      "passwordInput"
+    ).focus();
+
+  }, 100);
+
+}
+
+
+function closePassword() {
+
+  document.getElementById(
+    "passwordOverlay"
+  ).classList.remove("open");
+
+}
+
+
+async function submitPassword() {
+
+  const input =
+    document.getElementById(
+      "passwordInput"
+    );
+
+
+  const error =
+    document.getElementById(
+      "passwordError"
+    );
+
+
+  const password =
+    input.value;
+
+
+  if (!password) {
+
+    error.textContent =
+      "Please enter a password.";
+
+    return;
+
+  }
+
+
+  error.textContent =
+    "Checking password...";
+
+
+  try {
+
+    const response =
+      await fetch(
+        "/api/private-login",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+            folder:
+              selectedFolder,
+
+            password:
+              password
+          })
+        }
+      );
+
+
+    const data =
+      await response.json();
+
+
+    if (!response.ok) {
+
+      error.textContent =
+        data.error ||
+        "Incorrect password.";
+
+      return;
+
+    }
+
+
+    location.href =
+      `private-gallery.html?folder=${
+        encodeURIComponent(
+          selectedFolder
+        )
+      }`;
+
+  } catch (err) {
+
+    console.error(err);
+
+    error.textContent =
+      "Something went wrong. Please try again.";
+
+  }
+
+}
+
+
+document
+  .getElementById("passwordInput")
+  .addEventListener(
+    "keydown",
+    event => {
+
+      if (event.key === "Enter") {
+        submitPassword();
+      }
+
+      if (event.key === "Escape") {
+        closePassword();
+      }
+
+    }
+  );
+
+
+loadPrivateFolders();
+
+</script>
+
+</body>
+
+</html>
