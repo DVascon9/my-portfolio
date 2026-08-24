@@ -30,7 +30,7 @@ You can add as many folders as you want.
 */
 
 const PRIVATE_PASSWORDS = {
-  "_private/client-john": "john123",
+  "_private/client-Ayden Ames": "Volleyball2026",
   "_private/client-smith": "smith123",
   "_private/personal": "personal123"
 };
