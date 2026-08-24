@@ -22,10 +22,25 @@ function encodePath(path) {
     .join("/");
 }
 
+
+/*
+========================================================
+MEDIA URL
+========================================================
+
+Public media is now served through the Cloudflare Worker
+instead of directly through the R2 public URL.
+
+This lets us disable the R2 public development URL later.
+========================================================
+*/
+
 function mediaUrl(path) {
   const rootAndPath = joinPath(MEDIA_ROOT, path);
-  return `${MEDIA_BASE_URL.replace(/\/$/, "")}/${encodePath(rootAndPath)}`;
+
+  return `/api/media?key=${encodeURIComponent(rootAndPath)}`;
 }
+
 
 function isImage(file) {
   return IMAGE_EXTENSIONS.test(file);
@@ -46,7 +61,9 @@ function folderLabel(name) {
 }
 
 function cleanEventName(name) {
-  return folderLabel(String(name || "").replace(/^\d{4}-\d{2}-\d{2}-?/, ""));
+  return folderLabel(
+    String(name || "").replace(/^\d{4}-\d{2}-\d{2}-?/, "")
+  );
 }
 
 function formatDate(name) {
@@ -54,7 +71,9 @@ function formatDate(name) {
 
   if (!match) return "";
 
-  const date = new Date(`${match[1]}-${match[2]}-${match[3]}T00:00:00Z`);
+  const date = new Date(
+    `${match[1]}-${match[2]}-${match[3]}T00:00:00Z`
+  );
 
   return date.toLocaleDateString("en-US", {
     month: "short",
@@ -69,9 +88,23 @@ function icon(name) {
 
   if (normalized.includes("volleyball")) return "fa-volleyball";
   if (normalized.includes("basketball")) return "fa-basketball";
-  if (normalized.includes("baseball") || normalized.includes("softball")) return "fa-baseball";
-  if (normalized.includes("tennis")) return "fa-table-tennis-paddle-ball";
-  if (normalized.includes("soccer") || normalized.includes("football")) return "fa-futbol";
+  if (
+    normalized.includes("baseball") ||
+    normalized.includes("softball")
+  ) {
+    return "fa-baseball";
+  }
+
+  if (normalized.includes("tennis")) {
+    return "fa-table-tennis-paddle-ball";
+  }
+
+  if (
+    normalized.includes("soccer") ||
+    normalized.includes("football")
+  ) {
+    return "fa-futbol";
+  }
 
   return "fa-camera";
 }
@@ -100,22 +133,31 @@ function showLoading(container, message = "Loading...") {
   `;
 }
 
+
 async function listR2(prefix = "") {
   const finalPrefix = joinPath(MEDIA_ROOT, prefix);
-  const response = await fetch(`/api/list?prefix=${encodeURIComponent(finalPrefix)}`, {
-    cache: "no-store"
-  });
+
+  const response = await fetch(
+    `/api/list?prefix=${encodeURIComponent(finalPrefix)}`,
+    {
+      cache: "no-store"
+    }
+  );
 
   if (!response.ok) {
-    throw new Error("Could not read R2 storage. Check the GALLERIES R2 binding.");
+    throw new Error(
+      "Could not read R2 storage. Check the GALLERIES R2 binding."
+    );
   }
 
   return response.json();
 }
 
+
 function getFolderName(prefix) {
   return cleanSlash(prefix).split("/").pop();
 }
+
 
 function setGlobalNav() {
   document.querySelectorAll("[data-contact]").forEach(link => {
@@ -127,10 +169,12 @@ function setGlobalNav() {
   });
 }
 
+
 async function buildMenu() {
   setGlobalNav();
 
   const menu = document.getElementById("menuSports");
+
   if (!menu) return;
 
   menu.innerHTML = "";
@@ -139,11 +183,14 @@ async function buildMenu() {
 
   root.folders.forEach(folder => {
     const sport = getFolderName(folder);
+
     const button = document.createElement("button");
 
     button.textContent = folderLabel(sport);
+
     button.onclick = () => {
-      location.href = `sport.html?sport=${encodeURIComponent(sport)}`;
+      location.href =
+        `sport.html?sport=${encodeURIComponent(sport)}`;
     };
 
     menu.appendChild(button);
