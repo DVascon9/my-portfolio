@@ -27,9 +27,7 @@ uses:
 */
 
 const PRIVATE_PASSWORDS = {
-  "_private/Ayden Ames": "Volleyball2026",
-  "_private/Creighton recruits": "CUrecruit#6",
-  "_private/Creighton recruits": "CUrecruit#6"
+  "_private/test": "Test123!"
 };
 
 
