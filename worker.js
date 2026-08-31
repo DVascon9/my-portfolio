@@ -27,7 +27,7 @@ uses:
 */
 
 const PRIVATE_PASSWORDS = {
-  "_private/test": "Test123!"
+  "Private/Test": "Test123!"
 };
 
 
@@ -254,8 +254,8 @@ export default {
       */
 
       if (
-        key === "_private" ||
-        key.startsWith("_private/")
+        key === "Private" ||
+        key.startsWith("Private/")
       ) {
 
         return new Response(
@@ -951,7 +951,7 @@ export default {
           .filter(
             folder =>
               folder !==
-              "_private/"
+              "Private/"
           );
 
 
@@ -1081,10 +1081,8 @@ export default {
       */
 
       if (
-        prefix === "_private" ||
-        prefix.startsWith(
-          "_private/"
-        )
+        prefix === "Private" ||
+        prefix.startsWith("Private/")
       ) {
 
         return Response.json(
@@ -1151,7 +1149,7 @@ export default {
           folders.filter(
             folder =>
               folder !==
-              "_private/"
+              "Private/"
           );
 
       }
