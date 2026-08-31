@@ -26,9 +26,18 @@ uses:
 ========================================================
 */
 
-const PRIVATE_PASSWORDS = {
-  "Private/Test": "Test123!"
-};
+function getPrivatePasswords(env) {
+  if (!env.PRIVATE_PASSWORDS) {
+    return {};
+  }
+
+  try {
+    return JSON.parse(env.PRIVATE_PASSWORDS);
+  } catch (error) {
+    console.error("Could not parse PRIVATE_PASSWORDS");
+    return {};
+  }
+}
 
 
 /*
@@ -197,9 +206,11 @@ async function createPrivateCookie(
 }
 
 
-function privateFolderExists(folder) {
+function privateFolderExists(folder, env) {
+  const passwords = getPrivatePasswords(env);
+
   return Object.prototype.hasOwnProperty.call(
-    PRIVATE_PASSWORDS,
+    passwords,
     folder
   );
 }
@@ -351,8 +362,11 @@ export default {
         );
 
 
+      const passwords = getPrivatePasswords(env);
+
       if (
-        !privateFolderExists(
+        !Object.prototype.hasOwnProperty.call(
+          passwords,
           folder
         )
       ) {
@@ -371,8 +385,8 @@ export default {
 
 
       if (
-        PRIVATE_PASSWORDS[folder] !==
-        password
+         passwords[folder] !==
+         password
       ) {
 
         return Response.json(
@@ -438,10 +452,13 @@ export default {
       "/api/private-folders"
     ) {
 
+      const passwords =
+       getPrivatePasswords(env);
+
       const folders =
-        Object.keys(
-          PRIVATE_PASSWORDS
-        )
+       Object.keys(
+        passwords
+       )
         .map(folder => ({
           key: folder,
 
