@@ -5,46 +5,30 @@ function folderLabelForWorker(value) {
 }
 
 
-/*
-========================================================
-PRIVATE GALLERY PASSWORDS
-========================================================
-
-CHANGE THESE BEFORE USING PRIVATE GALLERIES.
-
-The folder names must match your R2 folders exactly.
-
-Example:
-
-_private/
-  client-john/
-
-uses:
-
-"_private/client-john": "john123"
-
-========================================================
-*/
+/* =========================================================
+   PRIVATE PASSWORDS
+   Stored securely in Cloudflare Secret:
+   PRIVATE_PASSWORDS
+   ========================================================= */
 
 function getPrivatePasswords(env) {
   if (!env.PRIVATE_PASSWORDS) {
+    console.error("PRIVATE_PASSWORDS secret is missing.");
     return {};
   }
 
   try {
     return JSON.parse(env.PRIVATE_PASSWORDS);
   } catch (error) {
-    console.error("Could not parse PRIVATE_PASSWORDS");
+    console.error("Could not parse PRIVATE_PASSWORDS.");
     return {};
   }
 }
 
 
-/*
-========================================================
-COOKIE HELPER
-========================================================
-*/
+/* =========================================================
+   COOKIE HELPERS
+   ========================================================= */
 
 function getCookie(request, name) {
   const cookieHeader =
@@ -68,11 +52,9 @@ function getCookie(request, name) {
 }
 
 
-/*
-========================================================
-HMAC SIGNATURE
-========================================================
-*/
+/* =========================================================
+   HMAC SIGNATURE
+   ========================================================= */
 
 async function createSignature(text, secret) {
   const encoder = new TextEncoder();
@@ -104,11 +86,9 @@ async function createSignature(text, secret) {
 }
 
 
-/*
-========================================================
-VERIFY PRIVATE SESSION
-========================================================
-*/
+/* =========================================================
+   VERIFY PRIVATE SESSION
+   ========================================================= */
 
 async function verifyPrivateSession(
   request,
@@ -121,7 +101,9 @@ async function verifyPrivateSession(
       "dv_private"
     );
 
-  if (!cookie) return false;
+  if (!cookie) {
+    return false;
+  }
 
   const parts =
     cookie.split(".");
@@ -174,11 +156,9 @@ async function verifyPrivateSession(
 }
 
 
-/*
-========================================================
-CREATE PRIVATE SESSION
-========================================================
-*/
+/* =========================================================
+   CREATE PRIVATE COOKIE
+   ========================================================= */
 
 async function createPrivateCookie(
   folder,
@@ -206,8 +186,16 @@ async function createPrivateCookie(
 }
 
 
-function privateFolderExists(folder, env) {
-  const passwords = getPrivatePasswords(env);
+/* =========================================================
+   CHECK PRIVATE FOLDER
+   ========================================================= */
+
+function privateFolderExists(
+  folder,
+  env
+) {
+  const passwords =
+    getPrivatePasswords(env);
 
   return Object.prototype.hasOwnProperty.call(
     passwords,
@@ -216,36 +204,24 @@ function privateFolderExists(folder, env) {
 }
 
 
-/*
-========================================================
-MAIN WORKER
-========================================================
-*/
+/* =========================================================
+   WORKER
+   ========================================================= */
 
 export default {
-
   async fetch(request, env) {
 
     const url =
       new URL(request.url);
 
 
-    /*
-    ======================================================
-    PUBLIC MEDIA
-    ======================================================
-
-    This replaces the old direct R2 public URL.
-
-    Example:
-
-    /api/media?key=Volleyball/team/event/photo.jpg
-
-    ======================================================
-    */
+    /* =====================================================
+       PUBLIC MEDIA
+       ===================================================== */
 
     if (
-      url.pathname === "/api/media"
+      url.pathname ===
+      "/api/media"
     ) {
 
       const key =
@@ -258,48 +234,34 @@ export default {
         );
       }
 
-
-      /*
-      Never allow the public endpoint
-      to access private files.
-      */
-
+      // NEVER allow private files through
+      // the public media endpoint.
       if (
         key === "Private" ||
         key.startsWith("Private/")
       ) {
-
         return new Response(
           "Unauthorized",
           { status: 401 }
         );
-
       }
 
-
       if (!env.GALLERIES) {
-
         return new Response(
           "Missing GALLERIES R2 binding",
           { status: 500 }
         );
-
       }
-
 
       const object =
         await env.GALLERIES.get(key);
 
-
       if (!object) {
-
         return new Response(
           "File not found",
           { status: 404 }
         );
-
       }
-
 
       return new Response(
         object.body,
@@ -317,34 +279,27 @@ export default {
     }
 
 
-    /*
-    ======================================================
-    PRIVATE LOGIN
-    ======================================================
-    */
+    /* =====================================================
+       PRIVATE LOGIN
+       ===================================================== */
 
     if (
-      url.pathname === "/api/private-login"
+      url.pathname ===
+      "/api/private-login"
     ) {
 
       if (request.method !== "POST") {
-
         return Response.json(
           {
             error:
               "Method not allowed"
           },
-          {
-            status: 405
-          }
+          { status: 405 }
         );
-
       }
-
 
       const body =
         await request.json();
-
 
       const folder =
         String(
@@ -355,74 +310,60 @@ export default {
           ""
         );
 
-
       const password =
         String(
           body.password || ""
         );
 
+      const passwords =
+        getPrivatePasswords(env);
 
-      const passwords = getPrivatePasswords(env);
-
+      // Check that the folder exists
+      // in PRIVATE_PASSWORDS.
       if (
         !Object.prototype.hasOwnProperty.call(
           passwords,
           folder
         )
       ) {
-
         return Response.json(
           {
             error:
               "Private gallery not found."
           },
-          {
-            status: 404
-          }
+          { status: 404 }
         );
-
       }
 
-
+      // Check the folder's individual password.
       if (
-         passwords[folder] !==
-         password
+        passwords[folder] !==
+        password
       ) {
-
         return Response.json(
           {
             error:
               "Incorrect password."
           },
-          {
-            status: 401
-          }
+          { status: 401 }
         );
-
       }
 
-
       if (!env.PRIVATE_SECRET) {
-
         return Response.json(
           {
             error:
               "PRIVATE_SECRET is not configured in Cloudflare."
           },
-          {
-            status: 500
-          }
+          { status: 500 }
         );
-
       }
-
 
       const cookie =
         await createPrivateCookie(
           folder,
           env
         );
-
 
       return Response.json(
         {
@@ -437,15 +378,12 @@ export default {
           }
         }
       );
-
     }
 
 
-    /*
-    ======================================================
-    PRIVATE FOLDER LIST
-    ======================================================
-    */
+    /* =====================================================
+       PRIVATE FOLDERS
+       ===================================================== */
 
     if (
       url.pathname ===
@@ -453,35 +391,31 @@ export default {
     ) {
 
       const passwords =
-       getPrivatePasswords(env);
+        getPrivatePasswords(env);
 
       const folders =
-       Object.keys(
-        passwords
-       )
-        .map(folder => ({
-          key: folder,
+        Object.keys(passwords)
+          .map(folder => ({
 
-          name:
-            folder.replace(
-              /^_private\//,
-              ""
-            )
-        }));
+            key: folder,
 
+            name:
+              folder.replace(
+                /^Private\//,
+                ""
+              )
+
+          }));
 
       return Response.json({
         folders
       });
-
     }
 
 
-    /*
-    ======================================================
-    PRIVATE FILE LIST
-    ======================================================
-    */
+    /* =====================================================
+       PRIVATE LIST
+       ===================================================== */
 
     if (
       url.pathname ===
@@ -499,25 +433,20 @@ export default {
           ""
         );
 
-
       if (
         !privateFolderExists(
-          folder
+          folder,
+          env
         )
       ) {
-
         return Response.json(
           {
             error:
               "Private gallery not found."
           },
-          {
-            status: 404
-          }
+          { status: 404 }
         );
-
       }
-
 
       const authorized =
         await verifyPrivateSession(
@@ -526,21 +455,15 @@ export default {
           env
         );
 
-
       if (!authorized) {
-
         return Response.json(
           {
             error:
               "Unauthorized"
           },
-          {
-            status: 401
-          }
+          { status: 401 }
         );
-
       }
-
 
       const listed =
         await env.GALLERIES.list({
@@ -549,7 +472,6 @@ export default {
           delimiter: "/",
           limit: 1000
         });
-
 
       const files =
         (listed.objects || [])
@@ -570,35 +492,26 @@ export default {
           )
 
           .map(object => ({
-            key:
-              object.key,
-
+            key: object.key,
             name:
               object.key
                 .split("/")
                 .pop(),
-
-            size:
-              object.size,
-
+            size: object.size,
             uploaded:
               object.uploaded
           }));
-
 
       return Response.json({
         prefix: folder,
         files
       });
-
     }
 
 
-    /*
-    ======================================================
-    PRIVATE MEDIA
-    ======================================================
-    */
+    /* =====================================================
+       PRIVATE MEDIA
+       ===================================================== */
 
     if (
       url.pathname ===
@@ -606,22 +519,14 @@ export default {
     ) {
 
       const key =
-        url.searchParams.get(
-          "key"
-        );
-
+        url.searchParams.get("key");
 
       if (!key) {
-
         return new Response(
           "Missing file key",
-          {
-            status: 400
-          }
+          { status: 400 }
         );
-
       }
-
 
       const folder =
         key
@@ -629,22 +534,17 @@ export default {
           .slice(0, 2)
           .join("/");
 
-
       if (
         !privateFolderExists(
-          folder
+          folder,
+          env
         )
       ) {
-
         return new Response(
           "Private gallery not found",
-          {
-            status: 404
-          }
+          { status: 404 }
         );
-
       }
-
 
       const authorized =
         await verifyPrivateSession(
@@ -653,36 +553,24 @@ export default {
           env
         );
 
-
       if (!authorized) {
-
         return new Response(
           "Unauthorized",
-          {
-            status: 401
-          }
+          { status: 401 }
         );
-
       }
-
 
       const object =
         await env.GALLERIES.get(
           key
         );
 
-
       if (!object) {
-
         return new Response(
           "File not found",
-          {
-            status: 404
-          }
+          { status: 404 }
         );
-
       }
-
 
       return new Response(
         object.body,
@@ -697,15 +585,12 @@ export default {
           }
         }
       );
-
     }
 
 
-    /*
-    ======================================================
-    PRIVATE DOWNLOAD
-    ======================================================
-    */
+    /* =====================================================
+       PRIVATE DOWNLOAD
+       ===================================================== */
 
     if (
       url.pathname ===
@@ -717,18 +602,12 @@ export default {
           "key"
         );
 
-
       if (!key) {
-
         return new Response(
           "Missing file key",
-          {
-            status: 400
-          }
+          { status: 400 }
         );
-
       }
-
 
       const folder =
         key
@@ -736,22 +615,17 @@ export default {
           .slice(0, 2)
           .join("/");
 
-
       if (
         !privateFolderExists(
-          folder
+          folder,
+          env
         )
       ) {
-
         return new Response(
           "Private gallery not found",
-          {
-            status: 404
-          }
+          { status: 404 }
         );
-
       }
-
 
       const authorized =
         await verifyPrivateSession(
@@ -760,46 +634,32 @@ export default {
           env
         );
 
-
       if (!authorized) {
-
         return new Response(
           "Unauthorized",
-          {
-            status: 401
-          }
+          { status: 401 }
         );
-
       }
-
 
       const object =
         await env.GALLERIES.get(
           key
         );
 
-
       if (!object) {
-
         return new Response(
           "File not found",
-          {
-            status: 404
-          }
+          { status: 404 }
         );
-
       }
-
 
       const filename =
         key.split("/").pop();
-
 
       return new Response(
         object.body,
         {
           headers: {
-
             "Content-Type":
               object.httpMetadata?.contentType ||
               "application/octet-stream",
@@ -812,15 +672,12 @@ export default {
           }
         }
       );
-
     }
 
 
-    /*
-    ======================================================
-    PUBLIC DOWNLOAD
-    ======================================================
-    */
+    /* =====================================================
+       PUBLIC DOWNLOAD
+       ===================================================== */
 
     if (
       url.pathname ===
@@ -832,81 +689,53 @@ export default {
           "key"
         );
 
-
       if (!key) {
-
         return new Response(
           "Missing file key",
-          {
-            status: 400
-          }
+          { status: 400 }
         );
-
       }
 
-
-      /*
-      Never allow the public
-      download endpoint to access
-      private files.
-      */
-
+      // NEVER allow private files
+      // through the public download endpoint.
       if (
-        key === "_private" ||
+        key === "Private" ||
         key.startsWith(
-          "_private/"
+          "Private/"
         )
       ) {
-
         return new Response(
           "Unauthorized",
-          {
-            status: 401
-          }
+          { status: 401 }
         );
-
       }
-
 
       if (!env.GALLERIES) {
-
         return new Response(
           "Missing GALLERIES R2 binding",
-          {
-            status: 500
-          }
+          { status: 500 }
         );
-
       }
-
 
       const object =
         await env.GALLERIES.get(
           key
         );
 
-
       if (!object) {
-
         return new Response(
           "File not found",
-          {
-            status: 404
-          }
+          { status: 404 }
         );
-
       }
-
 
       const filename =
         key.split("/").pop();
-
 
       return new Response(
         object.body,
         {
           headers: {
-
             "Content-Type":
               object.httpMetadata?.contentType ||
               "application/octet-stream",
@@ -916,15 +745,12 @@ export default {
           }
         }
       );
-
     }
 
 
-    /*
-    ======================================================
-    SEARCH
-    ======================================================
-    */
+    /* =====================================================
+       SEARCH
+       ===================================================== */
 
     if (
       url.pathname ===
@@ -932,29 +758,22 @@ export default {
     ) {
 
       if (!env.GALLERIES) {
-
         return Response.json(
           {
             error:
               "Missing GALLERIES R2 binding"
           },
-          {
-            status: 500
-          }
+          { status: 500 }
         );
-
       }
 
-
       const results = [];
-
 
       const sportsList =
         await env.GALLERIES.list({
           delimiter: "/",
           limit: 1000
         });
-
 
       const sports =
         (sportsList.delimitedPrefixes || [])
@@ -971,7 +790,6 @@ export default {
               "Private/"
           );
 
-
       for (
         const sportPrefix
         of sports
@@ -983,7 +801,6 @@ export default {
             ""
           );
 
-
         const teamsList =
           await env.GALLERIES.list({
             prefix:
@@ -991,7 +808,6 @@ export default {
             delimiter: "/",
             limit: 1000
           });
-
 
         for (
           const teamPrefix
@@ -1007,7 +823,6 @@ export default {
               .split("/")
               .pop();
 
-
           const eventsList =
             await env.GALLERIES.list({
               prefix:
@@ -1015,7 +830,6 @@ export default {
               delimiter: "/",
               limit: 1000
             });
-
 
           for (
             const eventPrefix
@@ -1030,7 +844,6 @@ export default {
                 )
                 .split("/")
                 .pop();
-
 
             results.push({
 
@@ -1053,26 +866,19 @@ export default {
                 `&event=` +
                 `${encodeURIComponent(event)}`
             });
-
           }
-
         }
-
       }
-
 
       return Response.json({
         results
       });
-
     }
 
 
-    /*
-    ======================================================
-    PUBLIC R2 LIST
-    ======================================================
-    */
+    /* =====================================================
+       PUBLIC R2 LIST
+       ===================================================== */
 
     if (
       url.pathname ===
@@ -1084,61 +890,45 @@ export default {
           "prefix"
         ) || "";
 
-
       prefix =
         prefix.replace(
           /^\/+/,
           ""
         );
 
-
-      /*
-      Block all attempts to
-      browse private content.
-      */
-
+      // Completely block direct access
+      // to Private content.
       if (
         prefix === "Private" ||
-        prefix.startsWith("Private/")
+        prefix.startsWith(
+          "Private/"
+        )
       ) {
-
         return Response.json(
           {
             error:
               "Private content."
           },
-          {
-            status: 403
-          }
+          { status: 403 }
         );
-
       }
-
 
       if (
         prefix &&
         !prefix.endsWith("/")
       ) {
-
         prefix += "/";
-
       }
 
-
       if (!env.GALLERIES) {
-
         return Response.json(
           {
             error:
               "Missing GALLERIES R2 binding"
           },
-          {
-            status: 500
-          }
+          { status: 500 }
         );
-
       }
-
 
       const listed =
         await env.GALLERIES.list({
@@ -1147,12 +937,12 @@ export default {
           limit: 1000
         });
 
-
       let folders =
         listed.delimitedPrefixes ||
         [];
 
-
+      // Hide private folder from the
+      // public website.
       if (prefix === "") {
 
         folders =
@@ -1168,13 +958,10 @@ export default {
               folder !==
               "Private/"
           );
-
       }
-
 
       folders =
         folders.sort().reverse();
-
 
       const files =
         (listed.objects || [])
@@ -1195,7 +982,6 @@ export default {
           )
 
           .map(object => ({
-
             key:
               object.key,
 
@@ -1209,33 +995,22 @@ export default {
 
             uploaded:
               object.uploaded
-
           }));
 
-
       return Response.json({
-
         prefix,
-
         folders,
-
         files
-
       });
-
     }
 
 
-    /*
-    ======================================================
-    WEBSITE ASSETS
-    ======================================================
-    */
+    /* =====================================================
+       NORMAL WEBSITE REQUEST
+       ===================================================== */
 
     return env.ASSETS.fetch(
       request
     );
-
   }
-
 };
