@@ -5,7 +5,7 @@
 
   <meta charset="UTF-8">
 
-  <title>Private Galleries</title>
+  <title>Private Galleries | DVascon Productions</title>
 
   <meta
     name="viewport"
@@ -13,7 +13,7 @@
   >
 
   <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
     rel="stylesheet"
   >
 
@@ -30,75 +30,380 @@
   <script src="js/config.js"></script>
   <script src="js/app.js"></script>
 
+
   <style>
 
-    .private-page {
-      padding: 100px 2rem 3rem;
-      max-width: 1100px;
-      margin: auto;
+    /* =====================================================
+       PRIVATE GALLERY PAGE
+       ===================================================== */
+
+    body {
+      background: #050608;
+      color: white;
     }
+
+
+    .private-page {
+
+      min-height: calc(100vh - 70px);
+
+      padding:
+        120px 24px
+        70px;
+
+      max-width: 1200px;
+
+      margin: auto;
+
+      box-sizing: border-box;
+
+    }
+
+
+    /* =====================================================
+       HEADER
+       ===================================================== */
 
     .private-header {
+
       text-align: center;
-      margin-bottom: 3rem;
+
+      max-width: 700px;
+
+      margin:
+        0 auto 55px;
+
     }
 
-    .private-header i {
-      font-size: 3rem;
-      margin-bottom: 1rem;
+
+    .private-lock {
+
+      width: 68px;
+      height: 68px;
+
+      margin:
+        0 auto 22px;
+
+      border-radius: 50%;
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      background:
+        rgba(255,255,255,.06);
+
+      border:
+        1px solid
+        rgba(255,255,255,.12);
+
+      box-shadow:
+        0 15px 45px
+        rgba(0,0,0,.35);
+
     }
+
+
+    .private-lock i {
+
+      font-size: 25px;
+
+      color: white;
+
+    }
+
 
     .private-header h2 {
-      margin-bottom: .5rem;
+
+      font-size:
+        clamp(2rem, 4vw, 3rem);
+
+      margin:
+        0 0 12px;
+
+      font-weight: 700;
+
+      letter-spacing: -.04em;
+
     }
+
 
     .private-header p {
-      color: #9CA3AF;
+
+      margin: 0;
+
+      color: #9ca3af;
+
+      font-size: 1rem;
+
+      line-height: 1.7;
+
     }
+
+
+    /* =====================================================
+       GALLERY GRID
+       ===================================================== */
 
     .private-grid {
-      display: grid;
-      grid-template-columns:
-        repeat(auto-fit, minmax(240px, 1fr));
 
-      gap: 1.25rem;
+      display: grid;
+
+      grid-template-columns:
+        repeat(
+          auto-fit,
+          minmax(240px, 1fr)
+        );
+
+      gap: 22px;
+
+      width: 100%;
+
     }
+
+
+    /* =====================================================
+       GALLERY CARD
+       ===================================================== */
 
     .private-card {
-      background: #111827;
-      border-radius: 14px;
-      padding: 2rem;
+
+      position: relative;
+
+      min-height: 190px;
+
+      padding: 30px;
+
+      box-sizing: border-box;
+
       cursor: pointer;
-      transition: transform .2s ease;
-      border: 1px solid rgba(255,255,255,.08);
+
+      overflow: hidden;
+
+      display: flex;
+
+      flex-direction: column;
+
+      align-items: center;
+
+      justify-content: center;
+
       text-align: center;
+
+      border-radius: 18px;
+
+      background:
+        linear-gradient(
+          145deg,
+          #111827,
+          #0c111b
+        );
+
+      border:
+        1px solid
+        rgba(255,255,255,.08);
+
+      box-shadow:
+        0 12px 35px
+        rgba(0,0,0,.25);
+
+      transition:
+        transform .25s ease,
+        border-color .25s ease,
+        box-shadow .25s ease;
+
     }
+
+
+    .private-card::before {
+
+      content: "";
+
+      position: absolute;
+
+      inset: 0;
+
+      background:
+        radial-gradient(
+          circle at 50% 0%,
+          rgba(255,255,255,.07),
+          transparent 55%
+        );
+
+      opacity: .7;
+
+      pointer-events: none;
+
+    }
+
 
     .private-card:hover {
-      transform: translateY(-4px);
+
+      transform:
+        translateY(-6px);
+
+      border-color:
+        rgba(255,255,255,.2);
+
+      box-shadow:
+        0 20px 50px
+        rgba(0,0,0,.4);
+
     }
 
-    .private-card i {
-      font-size: 2rem;
-      margin-bottom: 1rem;
+
+    .private-card:active {
+
+      transform:
+        translateY(-2px);
+
     }
+
+
+    .private-card-icon {
+
+      position: relative;
+
+      width: 58px;
+      height: 58px;
+
+      border-radius: 16px;
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      margin-bottom: 20px;
+
+      background:
+        rgba(255,255,255,.07);
+
+      border:
+        1px solid
+        rgba(255,255,255,.1);
+
+    }
+
+
+    .private-card-icon i {
+
+      font-size: 22px;
+
+    }
+
 
     .private-card h3 {
+
+      position: relative;
+
       margin: 0;
+
+      font-size: 1.15rem;
+
+      font-weight: 600;
+
+      letter-spacing: -.01em;
+
     }
+
 
     .private-card p {
-      color: #9CA3AF;
-      font-size: .9rem;
-      margin-top: .5rem;
+
+      position: relative;
+
+      margin:
+        9px 0 0;
+
+      color: #9ca3af;
+
+      font-size: .85rem;
+
     }
 
+
+    .private-card-arrow {
+
+      position: absolute;
+
+      right: 18px;
+      bottom: 18px;
+
+      width: 30px;
+      height: 30px;
+
+      border-radius: 50%;
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      background:
+        rgba(255,255,255,.05);
+
+      color: #9ca3af;
+
+      font-size: 12px;
+
+      transition:
+        transform .25s ease,
+        background .25s ease;
+
+    }
+
+
+    .private-card:hover
+    .private-card-arrow {
+
+      transform:
+        translateX(3px);
+
+      background:
+        rgba(255,255,255,.1);
+
+      color: white;
+
+    }
+
+
+    /* =====================================================
+       EMPTY / LOADING
+       ===================================================== */
+
+    .private-message {
+
+      grid-column:
+        1 / -1;
+
+      text-align: center;
+
+      color: #9ca3af;
+
+      padding: 50px 20px;
+
+    }
+
+
+    /* =====================================================
+       PASSWORD OVERLAY
+       ===================================================== */
+
     .password-overlay {
+
       position: fixed;
+
       inset: 0;
 
       background:
         rgba(0,0,0,.88);
+
+      backdrop-filter:
+        blur(10px);
+
+      -webkit-backdrop-filter:
+        blur(10px);
 
       display: none;
 
@@ -107,92 +412,363 @@
 
       z-index: 3000;
 
-      padding: 1rem;
+      padding: 20px;
+
+      box-sizing: border-box;
+
     }
+
 
     .password-overlay.open {
+
       display: flex;
+
     }
 
+
+    /* =====================================================
+       PASSWORD BOX
+       ===================================================== */
+
     .password-box {
-      width: min(420px, 100%);
 
-      background: #0b0b0b;
+      width:
+        min(430px, 100%);
 
-      padding: 2rem;
+      box-sizing: border-box;
 
-      border-radius: 18px;
+      padding:
+        35px;
 
-      text-align: center;
+      border-radius: 22px;
+
+      background:
+        linear-gradient(
+          145deg,
+          #111827,
+          #090c12
+        );
 
       border:
         1px solid
         rgba(255,255,255,.1);
+
+      box-shadow:
+        0 30px 90px
+        rgba(0,0,0,.65);
+
+      text-align: center;
+
+      animation:
+        passwordIn .2s ease;
+
     }
 
-    .password-box i {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
+
+    @keyframes passwordIn {
+
+      from {
+
+        opacity: 0;
+
+        transform:
+          translateY(12px)
+          scale(.98);
+
+      }
+
+      to {
+
+        opacity: 1;
+
+        transform:
+          translateY(0)
+          scale(1);
+
+      }
+
     }
 
-    .password-box h3 {
-      margin-bottom: .5rem;
-    }
 
-    .password-box p {
-      color: #9CA3AF;
-    }
+    .password-icon {
 
-    .password-box input {
-      width: 100%;
-      box-sizing: border-box;
-
-      padding: .9rem 1rem;
+      width: 64px;
+      height: 64px;
 
       margin:
-        1rem 0;
+        0 auto 20px;
 
-      border-radius: 10px;
+      border-radius: 18px;
 
-      border: none;
+      display: flex;
 
-      background: #111827;
+      align-items: center;
+      justify-content: center;
+
+      background:
+        rgba(255,255,255,.07);
+
+      border:
+        1px solid
+        rgba(255,255,255,.1);
+
+    }
+
+
+    .password-icon i {
+
+      font-size: 24px;
+
+    }
+
+
+    .password-box h3 {
+
+      margin:
+        0 0 9px;
+
+      font-size: 1.35rem;
+
+    }
+
+
+    .password-box > p {
+
+      margin:
+        0 0 22px;
+
+      color: #9ca3af;
+
+      font-size: .9rem;
+
+      line-height: 1.5;
+
+    }
+
+
+    /* =====================================================
+       PASSWORD INPUT
+       ===================================================== */
+
+    .password-input-wrapper {
+
+      position: relative;
+
+    }
+
+
+    .password-box input {
+
+      width: 100%;
+
+      box-sizing: border-box;
+
+      padding:
+        14px 45px 14px 15px;
+
+      border-radius: 11px;
+
+      border:
+        1px solid
+        rgba(255,255,255,.1);
+
+      outline: none;
+
+      background:
+        #080b10;
 
       color: white;
 
       font-size: 1rem;
+
+      transition:
+        border-color .2s ease,
+        box-shadow .2s ease;
+
     }
+
+
+    .password-box input::placeholder {
+
+      color: #6b7280;
+
+    }
+
+
+    .password-box input:focus {
+
+      border-color:
+        rgba(255,255,255,.35);
+
+      box-shadow:
+        0 0 0 3px
+        rgba(255,255,255,.05);
+
+    }
+
+
+    /* =====================================================
+       PASSWORD ERROR
+       ===================================================== */
+
+    #passwordError {
+
+      min-height: 22px;
+
+      margin:
+        10px 0 5px;
+
+      color: #f87171;
+
+      font-size: .85rem;
+
+    }
+
+
+    /* =====================================================
+       PASSWORD BUTTONS
+       ===================================================== */
 
     .password-actions {
-      display: flex;
-      gap: .75rem;
-      justify-content: center;
+
+      display: grid;
+
+      grid-template-columns:
+        1fr 1fr;
+
+      gap: 10px;
+
+      margin-top: 10px;
+
     }
 
+
     .password-actions button {
+
       border: none;
 
       padding:
-        .7rem 1.2rem;
+        12px 16px;
 
-      border-radius: 9px;
+      border-radius: 10px;
 
       cursor: pointer;
 
-      background: #1f2937;
+      font-family: inherit;
+
+      font-size: .9rem;
+
+      font-weight: 600;
+
+      transition:
+        transform .2s ease,
+        opacity .2s ease,
+        background .2s ease;
+
+    }
+
+
+    .password-actions button:hover {
+
+      transform:
+        translateY(-1px);
+
+    }
+
+
+    .password-actions button:active {
+
+      transform:
+        translateY(0);
+
+    }
+
+
+    .password-actions .cancel {
+
+      background:
+        rgba(255,255,255,.07);
 
       color: white;
+
+      border:
+        1px solid
+        rgba(255,255,255,.08);
+
     }
+
 
     .password-actions .enter {
+
       background: white;
-      color: black;
+
+      color: #050608;
+
     }
 
-    #passwordError {
-      color: #f87171;
-      min-height: 1.4rem;
-      font-size: .9rem;
+
+    .password-actions button:disabled {
+
+      opacity: .5;
+
+      cursor: not-allowed;
+
+      transform: none;
+
+    }
+
+
+    /* =====================================================
+       MOBILE
+       ===================================================== */
+
+    @media (max-width: 600px) {
+
+      .private-page {
+
+        padding:
+          105px 18px 50px;
+
+      }
+
+
+      .private-header {
+
+        margin-bottom: 35px;
+
+      }
+
+
+      .private-header h2 {
+
+        font-size: 2rem;
+
+      }
+
+
+      .private-grid {
+
+        grid-template-columns:
+          1fr;
+
+        gap: 15px;
+
+      }
+
+
+      .private-card {
+
+        min-height: 165px;
+
+      }
+
+
+      .password-box {
+
+        padding: 28px 22px;
+
+      }
+
     }
 
   </style>
@@ -201,6 +777,11 @@
 
 
 <body>
+
+
+  <!-- =====================================================
+       NAVIGATION
+       ===================================================== -->
 
   <div class="nav">
 
@@ -220,6 +801,7 @@
 
     </a>
 
+
     <i
       class="fa-solid fa-bars burger"
       onclick="toggleMenu()"
@@ -235,6 +817,7 @@
 
     <div id="menuSports"></div>
 
+
     <a
       data-contact
       target="_blank"
@@ -245,18 +828,33 @@
   </div>
 
 
+  <!-- =====================================================
+       PRIVATE GALLERIES
+       ===================================================== -->
+
   <main class="private-page">
+
 
     <div class="private-header">
 
-      <i class="fa-solid fa-lock"></i>
+      <div class="private-lock">
+
+        <i
+          class="fa-solid fa-lock"
+        ></i>
+
+      </div>
+
 
       <h2>
         Private Galleries
       </h2>
 
+
       <p>
-        Select a gallery and enter its password.
+        Your photos, securely delivered.
+        Select your gallery below and enter
+        the password provided by DVascon Productions.
       </p>
 
     </div>
@@ -267,16 +865,19 @@
       class="private-grid"
     >
 
-      <p style="color:#9CA3AF;">
+      <div class="private-message">
         Loading private galleries...
-      </p>
+      </div>
 
     </div>
+
 
   </main>
 
 
-  <!-- PASSWORD WINDOW -->
+  <!-- =====================================================
+       PASSWORD WINDOW
+       ===================================================== -->
 
   <div
     id="passwordOverlay"
@@ -285,43 +886,66 @@
 
     <div class="password-box">
 
-      <i class="fa-solid fa-lock"></i>
 
-      <h3 id="passwordTitle">
+      <div class="password-icon">
+
+        <i
+          class="fa-solid fa-lock"
+        ></i>
+
+      </div>
+
+
+      <h3
+        id="passwordTitle"
+      >
         Private Gallery
       </h3>
 
+
       <p>
-        Enter the password to continue.
+        Enter your gallery password
+        to continue.
       </p>
 
-      <input
-        id="passwordInput"
-        type="password"
-        placeholder="Password"
-        autocomplete="current-password"
-      >
+
+      <div class="password-input-wrapper">
+
+        <input
+          id="passwordInput"
+          type="password"
+          placeholder="Enter password"
+          autocomplete="current-password"
+        >
+
+      </div>
+
 
       <div
         id="passwordError"
       ></div>
 
+
       <div class="password-actions">
 
         <button
+          class="cancel"
           onclick="closePassword()"
         >
           Cancel
         </button>
 
+
         <button
           class="enter"
+          id="unlockButton"
           onclick="submitPassword()"
         >
-          Unlock
+          Unlock Gallery
         </button>
 
       </div>
+
 
     </div>
 
@@ -330,14 +954,17 @@
 
 <script>
 
+
+/* =========================================================
+   CURRENTLY SELECTED FOLDER
+   ========================================================= */
+
 let selectedFolder = "";
 
 
-/*
-========================================================
-LOAD PRIVATE FOLDERS
-========================================================
-*/
+/* =========================================================
+   LOAD PRIVATE FOLDERS
+   ========================================================= */
 
 async function loadPrivateFolders() {
 
@@ -362,9 +989,11 @@ async function loadPrivateFolders() {
 
 
     if (!response.ok) {
+
       throw new Error(
         "Could not load private galleries."
       );
+
     }
 
 
@@ -372,14 +1001,32 @@ async function loadPrivateFolders() {
       await response.json();
 
 
-    if (!data.folders.length) {
+    if (
+      !data.folders ||
+      !data.folders.length
+    ) {
 
-      grid.innerHTML =
-        `<p style="color:#9CA3AF;">
+      grid.innerHTML = `
+
+        <div class="private-message">
+
+          <i
+            class="fa-solid fa-folder-open"
+            style="
+              font-size:2rem;
+              margin-bottom:15px;
+              display:block;
+            "
+          ></i>
+
           No private galleries yet.
-        </p>`;
+
+        </div>
+
+      `;
 
       return;
+
     }
 
 
@@ -388,8 +1035,11 @@ async function loadPrivateFolders() {
 
     data.folders.forEach(folder => {
 
+
       const card =
-        document.createElement("div");
+        document.createElement(
+          "div"
+        );
 
 
       card.className =
@@ -406,15 +1056,32 @@ async function loadPrivateFolders() {
 
       card.innerHTML = `
 
-        <i class="fa-solid fa-folder-lock"></i>
+        <div class="private-card-icon">
+
+          <i
+            class="fa-solid fa-folder-lock"
+          ></i>
+
+        </div>
+
 
         <h3>
           ${displayName}
         </h3>
 
+
         <p>
           Password protected
         </p>
+
+
+        <div class="private-card-arrow">
+
+          <i
+            class="fa-solid fa-arrow-right"
+          ></i>
+
+        </div>
 
       `;
 
@@ -429,38 +1096,62 @@ async function loadPrivateFolders() {
       };
 
 
-      grid.appendChild(card);
+      grid.appendChild(
+        card
+      );
 
     });
+
 
   } catch (error) {
 
     console.error(error);
 
-    grid.innerHTML =
-      `<p style="color:#f87171;">
+
+    grid.innerHTML = `
+
+      <div
+        class="private-message"
+        style="color:#f87171;"
+      >
+
+        <i
+          class="fa-solid fa-triangle-exclamation"
+          style="
+            font-size:2rem;
+            margin-bottom:15px;
+            display:block;
+          "
+        ></i>
+
         ${error.message}
-      </p>`;
+
+      </div>
+
+    `;
 
   }
 
 }
 
 
-/*
-========================================================
-PASSWORD WINDOW
-========================================================
-*/
+/* =========================================================
+   OPEN PASSWORD WINDOW
+   ========================================================= */
 
-function openPassword(folder, name) {
+function openPassword(
+  folder,
+  name
+) {
 
-  selectedFolder = folder;
+  selectedFolder =
+    folder;
 
 
   document.getElementById(
     "passwordTitle"
-  ).textContent = name;
+  ).textContent =
+    name;
 
 
   document.getElementById(
@@ -474,8 +1165,15 @@ function openPassword(folder, name) {
 
 
   document.getElementById(
+    "unlockButton"
+  ).disabled = false;
+
+
+  document.getElementById(
     "passwordOverlay"
-  ).classList.add("open");
+  ).classList.add(
+    "open"
+  );
 
 
   setTimeout(() => {
@@ -489,14 +1187,24 @@ function openPassword(folder, name) {
 }
 
 
+/* =========================================================
+   CLOSE PASSWORD WINDOW
+   ========================================================= */
+
 function closePassword() {
 
   document.getElementById(
     "passwordOverlay"
-  ).classList.remove("open");
+  ).classList.remove(
+    "open"
+  );
 
 }
 
+
+/* =========================================================
+   SUBMIT PASSWORD
+   ========================================================= */
 
 async function submitPassword() {
 
@@ -512,6 +1220,12 @@ async function submitPassword() {
     );
 
 
+  const button =
+    document.getElementById(
+      "unlockButton"
+    );
+
+
   const password =
     input.value;
 
@@ -520,6 +1234,8 @@ async function submitPassword() {
 
     error.textContent =
       "Please enter a password.";
+
+    input.focus();
 
     return;
 
@@ -530,12 +1246,17 @@ async function submitPassword() {
     "Checking password...";
 
 
+  button.disabled =
+    true;
+
+
   try {
 
     const response =
       await fetch(
         "/api/private-login",
         {
+
           method: "POST",
 
           headers: {
@@ -543,13 +1264,17 @@ async function submitPassword() {
               "application/json"
           },
 
-          body: JSON.stringify({
-            folder:
-              selectedFolder,
+          body:
+            JSON.stringify({
 
-            password:
-              password
-          })
+              folder:
+                selectedFolder,
+
+              password:
+                password
+
+            })
+
         }
       );
 
@@ -564,6 +1289,13 @@ async function submitPassword() {
         data.error ||
         "Incorrect password.";
 
+      button.disabled =
+        false;
+
+      input.focus();
+
+      input.select();
+
       return;
 
     }
@@ -576,39 +1308,90 @@ async function submitPassword() {
         )
       }`;
 
+
   } catch (err) {
 
     console.error(err);
 
+
     error.textContent =
       "Something went wrong. Please try again.";
+
+
+    button.disabled =
+      false;
 
   }
 
 }
 
 
+/* =========================================================
+   KEYBOARD CONTROLS
+   ========================================================= */
+
 document
-  .getElementById("passwordInput")
+  .getElementById(
+    "passwordInput"
+  )
   .addEventListener(
     "keydown",
     event => {
 
-      if (event.key === "Enter") {
+      if (
+        event.key === "Enter"
+      ) {
+
         submitPassword();
+
       }
 
-      if (event.key === "Escape") {
+
+      if (
+        event.key === "Escape"
+      ) {
+
         closePassword();
+
       }
 
     }
   );
 
 
+/* =========================================================
+   CLOSE WHEN CLICKING OUTSIDE
+   ========================================================= */
+
+document
+  .getElementById(
+    "passwordOverlay"
+  )
+  .addEventListener(
+    "click",
+    event => {
+
+      if (
+        event.target.id ===
+        "passwordOverlay"
+      ) {
+
+        closePassword();
+
+      }
+
+    }
+  );
+
+
+/* =========================================================
+   START
+   ========================================================= */
+
 loadPrivateFolders();
 
 </script>
+
 
 </body>
 
