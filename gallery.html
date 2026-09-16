@@ -127,7 +127,9 @@
 
       await buildMenu();
 
-      const listed = await listR2(joinPath(sport, team, eventName));
+      const listed = await listR2(
+        team ? joinPath(sport, team, eventName) : joinPath(sport, eventName)
+      );
 
       files = listed.files.filter(file => isMedia(file.name));
       urls = files.map(file => mediaUrl(file.key));

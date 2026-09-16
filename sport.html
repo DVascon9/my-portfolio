@@ -46,6 +46,38 @@
         return;
       }
 
+      if (sport.toLowerCase() === "events") {
+        const grid = document.createElement("div");
+        grid.className = "event-grid";
+        container.appendChild(grid);
+
+        for (const eventFolderPrefix of teamList.folders) {
+          const event = getFolderName(eventFolderPrefix);
+          const files = await listR2(joinPath(sport, event));
+          const coverObject = files.files.find(file => isImage(file.name));
+          const cover = coverObject ? mediaUrl(coverObject.key) : "assets/BG_Website.jpg";
+          const card = document.createElement("button");
+
+          card.className = "event-card";
+          card.type = "button";
+          card.innerHTML = `
+            <div class="event-image"></div>
+            <div class="event-info">
+              <h4>${cleanEventName(event)}</h4>
+            </div>
+          `;
+          card.querySelector(".event-image").style.backgroundImage =
+            `url(${JSON.stringify(cover)})`;
+          card.onclick = () => {
+            location.href = `gallery.html?sport=${encodeURIComponent(sport)}&event=${encodeURIComponent(event)}`;
+          };
+
+          grid.appendChild(card);
+        }
+
+        return;
+      }
+
       for (const teamFolder of teamList.folders) {
         const team = getFolderName(teamFolder);
         const teamBlock = document.createElement("div");
