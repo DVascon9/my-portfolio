@@ -68,12 +68,14 @@
 
           card.className = "event-card";
           card.innerHTML = `
-            <div class="event-image" style="background-image:url('${cover}')"></div>
+            <div class="event-image"></div>
             <div class="event-info">
               <h4>${cleanEventName(event)}</h4>
               <span>${formatDate(event)}</span>
             </div>
           `;
+          card.querySelector(".event-image").style.backgroundImage =
+            `url(${JSON.stringify(cover)})`;
           card.onclick = () => {
             location.href = `gallery.html?sport=${encodeURIComponent(sport)}&team=${encodeURIComponent(team)}&event=${encodeURIComponent(event)}`;
           };
