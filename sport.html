@@ -64,9 +64,10 @@
           const files = await listR2(joinPath(sport, team, event));
           const coverObject = files.files.find(file => isImage(file.name));
           const cover = coverObject ? mediaUrl(coverObject.key) : "assets/BG_Website.jpg";
-          const card = document.createElement("div");
+          const card = document.createElement("button");
 
           card.className = "event-card";
+          card.type = "button";
           card.innerHTML = `
             <div class="event-image"></div>
             <div class="event-info">

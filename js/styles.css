@@ -153,6 +153,10 @@ body::after {
   display: flex;
   align-items: flex-end;
   padding: 1.2rem;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
   cursor: pointer;
   transition: .3s;
 }
@@ -179,6 +183,12 @@ body::after {
 
 .event-card {
   position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  text-align: left;
   border-radius: 18px;
   overflow: hidden;
   cursor: pointer;

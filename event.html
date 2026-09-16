@@ -51,9 +51,10 @@
 
       data.folders.forEach(folder => {
         const event = getFolderName(folder);
-        const card = document.createElement("div");
+        const card = document.createElement("button");
 
         card.className = "card";
+        card.type = "button";
         card.textContent = cleanEventName(event);
         card.onclick = () => {
           location.href = `gallery.html?sport=${encodeURIComponent(sport)}&team=${encodeURIComponent(team)}&event=${encodeURIComponent(event)}`;
