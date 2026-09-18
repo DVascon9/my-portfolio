@@ -45,6 +45,7 @@
       display: none;
       align-items: center;
       justify-content: center;
+      touch-action: pan-y;
       z-index: 2000;
     }
 
@@ -214,6 +215,31 @@
     lb.onclick = event => {
       if (event.target === lb) closeLB();
     };
+
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    lb.addEventListener("touchstart", event => {
+      const touch = event.changedTouches[0];
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+    }, { passive: true });
+
+    lb.addEventListener("touchend", event => {
+      const touch = event.changedTouches[0];
+      const deltaX = touch.clientX - touchStartX;
+      const deltaY = touch.clientY - touchStartY;
+
+      if (Math.abs(deltaX) < 50 || Math.abs(deltaX) <= Math.abs(deltaY)) {
+        return;
+      }
+
+      openLB(
+        deltaX < 0
+          ? (index + 1) % files.length
+          : (index - 1 + files.length) % files.length
+      );
+    }, { passive: true });
 
     load().catch(error => {
       console.error(error);
