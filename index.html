@@ -126,21 +126,10 @@
         <p class="eyebrow">A closer look</p>
         <h2 id="featured-title">Featured frames</h2>
       </div>
-      <p class="featured-counter" id="slideCounter" aria-live="polite"></p>
     </div>
 
     <div class="slideshow" id="featuredSlideshow">
       <div class="slide-track" id="slideTrack"></div>
-
-      <div class="slideshow-controls" aria-label="Slideshow controls">
-        <button class="slide-button" id="previousSlide" type="button" aria-label="Previous photo">
-          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
-        </button>
-        <div class="slide-dots" id="slideDots"></div>
-        <button class="slide-button" id="nextSlide" type="button" aria-label="Next photo">
-          <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-        </button>
-      </div>
     </div>
   </section>
 
@@ -269,10 +258,10 @@
     loadSearchIndex();
 
     const featuredSlides = [
-      { src: "assets/vs UNI-24.jpg", alt: "Sports action photo from UNI" },
-      { src: "assets/vs UNI-32.jpg", alt: "Sports action photo from UNI" },
-      { src: "assets/vs_Butler_DVascon_prod15.jpg", alt: "Sports action photo from Butler" },
       { src: "assets/vs_Butler_DVascon_prod16.jpg", alt: "Sports action photo from Butler" },
+      { src: "assets/vs_Butler_DVascon_prod15.jpg", alt: "Sports action photo from Butler" },
+      { src: "assets/vs UNI-32.jpg", alt: "Sports action photo from UNI" },
+      { src: "assets/vs UNI-24.jpg", alt: "Sports action photo from UNI" },
       { src: "assets/vs_Butler-DVascon_Productions.jpg", alt: "Sports action photo from Butler" },
       { src: "assets/Vs_Georgetown_DVascon_Prod-7.jpg", alt: "Sports action photo from Georgetown" },
       { src: "assets/vs_Gonzaga_DVascon-77.jpg", alt: "Sports action photo from Gonzaga" },
@@ -281,11 +270,10 @@
       { src: "assets/vs_Atlanta Vibe-42.jpg", alt: "Sports action photo from Atlanta Vibe" }
     ];
     const slideTrack = document.getElementById("slideTrack");
-    const slideDots = document.getElementById("slideDots");
-    const slideCounter = document.getElementById("slideCounter");
     const slideshow = document.getElementById("featuredSlideshow");
-    let activeSlide = 0;
-    let touchStartX = 0;
+    let activeSlide = 1;
+    let pointerStartX = 0;
+    let autoSlideTimer;
 
     function renderSlideshow() {
       if (!featuredSlides.length) {
@@ -296,51 +284,77 @@
             <span>Add the photos when they are ready.</span>
           </div>
         `;
-        slideDots.innerHTML = "";
-        slideCounter.textContent = "Ready for your photos";
         return;
       }
 
-      slideTrack.innerHTML = featuredSlides.map(slide => `
+      const slidesWithClones = [
+        featuredSlides[featuredSlides.length - 1],
+        ...featuredSlides,
+        featuredSlides[0]
+      ];
+
+      slideTrack.innerHTML = slidesWithClones.map(slide => `
         <figure class="slide">
           <img src="${slide.src}" alt="${slide.alt}" draggable="false">
         </figure>
       `).join("");
 
-      slideDots.innerHTML = featuredSlides.map((slide, index) => `
-        <button class="slide-dot${index === activeSlide ? " is-active" : ""}" type="button" aria-label="Go to photo ${index + 1}" data-slide="${index}"></button>
-      `).join("");
-
-      slideDots.querySelectorAll(".slide-dot").forEach(dot => {
-        dot.addEventListener("click", () => goToSlide(Number(dot.dataset.slide)));
-      });
-
       updateSlideshow();
+      scheduleNextSlide();
     }
 
-    function updateSlideshow() {
+    function updateSlideshow(animate = true) {
+      slideTrack.style.transition = animate ? "" : "none";
       slideTrack.style.transform = `translateX(-${activeSlide * 100}%)`;
-      slideDots.querySelectorAll(".slide-dot").forEach((dot, index) => {
-        dot.classList.toggle("is-active", index === activeSlide);
-      });
-      slideCounter.textContent = `${String(activeSlide + 1).padStart(2, "0")} / ${String(featuredSlides.length).padStart(2, "0")}`;
+
+      if (!animate) {
+        slideTrack.offsetWidth;
+        requestAnimationFrame(() => {
+          slideTrack.style.transition = "";
+        });
+      }
     }
 
     function goToSlide(index) {
       if (!featuredSlides.length) return;
-      activeSlide = (index + featuredSlides.length) % featuredSlides.length;
+      activeSlide = index;
       updateSlideshow();
+      scheduleNextSlide();
     }
 
-    document.getElementById("previousSlide").addEventListener("click", () => goToSlide(activeSlide - 1));
-    document.getElementById("nextSlide").addEventListener("click", () => goToSlide(activeSlide + 1));
-    slideshow.addEventListener("touchstart", event => {
-      touchStartX = event.changedTouches[0].screenX;
-    }, { passive: true });
-    slideshow.addEventListener("touchend", event => {
-      const distance = event.changedTouches[0].screenX - touchStartX;
+    function scheduleNextSlide() {
+      clearTimeout(autoSlideTimer);
+
+      if (featuredSlides.length < 2) return;
+
+      autoSlideTimer = setTimeout(() => {
+        goToSlide(activeSlide + 1);
+      }, 5700);
+    }
+
+    slideTrack.addEventListener("transitionend", event => {
+      if (event.propertyName !== "transform") return;
+
+      if (activeSlide === 0) {
+        activeSlide = featuredSlides.length;
+        updateSlideshow(false);
+      }
+
+      if (activeSlide === featuredSlides.length + 1) {
+        activeSlide = 1;
+        updateSlideshow(false);
+      }
+    });
+
+    slideshow.addEventListener("pointerdown", event => {
+      pointerStartX = event.clientX;
+      slideshow.setPointerCapture(event.pointerId);
+    });
+    slideshow.addEventListener("pointerup", event => {
+      const distance = event.clientX - pointerStartX;
       if (Math.abs(distance) > 45) goToSlide(activeSlide + (distance < 0 ? 1 : -1));
-    }, { passive: true });
+      slideshow.releasePointerCapture(event.pointerId);
+    });
     document.addEventListener("keydown", event => {
       if (event.key === "ArrowLeft") goToSlide(activeSlide - 1);
       if (event.key === "ArrowRight") goToSlide(activeSlide + 1);
