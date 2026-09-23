@@ -120,6 +120,30 @@
     </div>
   </section>
 
+  <section class="featured-slideshow" aria-labelledby="featured-title">
+    <div class="featured-heading">
+      <div>
+        <p class="eyebrow">A closer look</p>
+        <h2 id="featured-title">Featured frames</h2>
+      </div>
+      <p class="featured-counter" id="slideCounter" aria-live="polite"></p>
+    </div>
+
+    <div class="slideshow" id="featuredSlideshow">
+      <div class="slide-track" id="slideTrack"></div>
+
+      <div class="slideshow-controls" aria-label="Slideshow controls">
+        <button class="slide-button" id="previousSlide" type="button" aria-label="Previous photo">
+          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+        </button>
+        <div class="slide-dots" id="slideDots"></div>
+        <button class="slide-button" id="nextSlide" type="button" aria-label="Next photo">
+          <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+
   <section class="section">
 
     <input
@@ -243,6 +267,86 @@
     });
 
     loadSearchIndex();
+
+    const featuredSlides = [
+      { src: "assets/vs UNI-24.jpg", alt: "Sports action photo from UNI" },
+      { src: "assets/vs UNI-32.jpg", alt: "Sports action photo from UNI" },
+      { src: "assets/vs_Butler_DVascon_prod15.jpg", alt: "Sports action photo from Butler" },
+      { src: "assets/vs_Butler_DVascon_prod16.jpg", alt: "Sports action photo from Butler" },
+      { src: "assets/vs_Butler-DVascon_Productions.jpg", alt: "Sports action photo from Butler" },
+      { src: "assets/Vs_Georgetown_DVascon_Prod-7.jpg", alt: "Sports action photo from Georgetown" },
+      { src: "assets/vs_Gonzaga_DVascon-77.jpg", alt: "Sports action photo from Gonzaga" },
+      { src: "assets/vs_Saint Mary_DVascon-4.jpg", alt: "Sports action photo from Saint Mary" },
+      { src: "assets/vs_Nebraska_DVascon-25.jpg", alt: "Sports action photo from Nebraska" },
+      { src: "assets/vs_Atlanta Vibe-42.jpg", alt: "Sports action photo from Atlanta Vibe" }
+    ];
+    const slideTrack = document.getElementById("slideTrack");
+    const slideDots = document.getElementById("slideDots");
+    const slideCounter = document.getElementById("slideCounter");
+    const slideshow = document.getElementById("featuredSlideshow");
+    let activeSlide = 0;
+    let touchStartX = 0;
+
+    function renderSlideshow() {
+      if (!featuredSlides.length) {
+        slideTrack.innerHTML = `
+          <div class="slide-empty">
+            <i class="fa-solid fa-images" aria-hidden="true"></i>
+            <p>Your next set of moments will live here.</p>
+            <span>Add the photos when they are ready.</span>
+          </div>
+        `;
+        slideDots.innerHTML = "";
+        slideCounter.textContent = "Ready for your photos";
+        return;
+      }
+
+      slideTrack.innerHTML = featuredSlides.map(slide => `
+        <figure class="slide">
+          <img src="${slide.src}" alt="${slide.alt}" draggable="false">
+        </figure>
+      `).join("");
+
+      slideDots.innerHTML = featuredSlides.map((slide, index) => `
+        <button class="slide-dot${index === activeSlide ? " is-active" : ""}" type="button" aria-label="Go to photo ${index + 1}" data-slide="${index}"></button>
+      `).join("");
+
+      slideDots.querySelectorAll(".slide-dot").forEach(dot => {
+        dot.addEventListener("click", () => goToSlide(Number(dot.dataset.slide)));
+      });
+
+      updateSlideshow();
+    }
+
+    function updateSlideshow() {
+      slideTrack.style.transform = `translateX(-${activeSlide * 100}%)`;
+      slideDots.querySelectorAll(".slide-dot").forEach((dot, index) => {
+        dot.classList.toggle("is-active", index === activeSlide);
+      });
+      slideCounter.textContent = `${String(activeSlide + 1).padStart(2, "0")} / ${String(featuredSlides.length).padStart(2, "0")}`;
+    }
+
+    function goToSlide(index) {
+      if (!featuredSlides.length) return;
+      activeSlide = (index + featuredSlides.length) % featuredSlides.length;
+      updateSlideshow();
+    }
+
+    document.getElementById("previousSlide").addEventListener("click", () => goToSlide(activeSlide - 1));
+    document.getElementById("nextSlide").addEventListener("click", () => goToSlide(activeSlide + 1));
+    slideshow.addEventListener("touchstart", event => {
+      touchStartX = event.changedTouches[0].screenX;
+    }, { passive: true });
+    slideshow.addEventListener("touchend", event => {
+      const distance = event.changedTouches[0].screenX - touchStartX;
+      if (Math.abs(distance) > 45) goToSlide(activeSlide + (distance < 0 ? 1 : -1));
+    }, { passive: true });
+    document.addEventListener("keydown", event => {
+      if (event.key === "ArrowLeft") goToSlide(activeSlide - 1);
+      if (event.key === "ArrowRight") goToSlide(activeSlide + 1);
+    });
+
+    renderSlideshow();
   </script>
 </body>
 </html>
