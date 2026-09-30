@@ -184,6 +184,7 @@
 
         card.className = "card";
         card.type = "button";
+        card.style.setProperty("--sport-accent", sportAccent(sport));
         card.innerHTML = `
           <div>
             <i class="fa-solid ${icon(sport)}"></i>

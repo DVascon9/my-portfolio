@@ -109,6 +109,18 @@ function icon(name) {
   return "fa-camera";
 }
 
+function sportAccent(name) {
+  const normalized = String(name || "").toLowerCase();
+
+  if (normalized.includes("volleyball")) return "#35DFFF";
+  if (normalized.includes("basketball")) return "#FF914D";
+  if (normalized.includes("baseball") || normalized.includes("softball")) return "#FF5A79";
+  if (normalized.includes("tennis")) return "#A7E85D";
+  if (normalized.includes("soccer") || normalized.includes("football")) return "#52D6A0";
+
+  return "#F13BCB";
+}
+
 function toggleMenu() {
   document.getElementById("menu")?.classList.toggle("open");
 }

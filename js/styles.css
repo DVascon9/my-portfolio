@@ -178,14 +178,21 @@ body::after {
   min-height: 170px;
   border: 1px solid rgba(255, 255, 255, .1);
   background:
-    radial-gradient(ellipse at 100% 0%, var(--sport-glow), transparent 58%),
+    radial-gradient(ellipse at 100% 0%, color-mix(in srgb, var(--sport-accent) 28%, transparent), transparent 58%),
     linear-gradient(145deg, #19212b, #0c1118 76%);
   transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
 }
 
-#sports .card:nth-child(3n + 1) { --sport-glow: rgba(36, 190, 174, .24); }
-#sports .card:nth-child(3n + 2) { --sport-glow: rgba(255, 128, 85, .24); }
-#sports .card:nth-child(3n) { --sport-glow: rgba(244, 197, 81, .2); }
+#sports .card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 1.2rem;
+  right: 1.2rem;
+  height: 2px;
+  background: linear-gradient(90deg, #35dfff, #8b5cff, #f13bcb);
+  box-shadow: 0 0 14px rgba(53, 223, 255, .42);
+}
 
 #sports .card::after {
   content: "";
@@ -212,9 +219,9 @@ body::after {
   width: 48px;
   height: 48px;
   margin-bottom: 1.1rem;
-  border: 1px solid color-mix(in srgb, var(--sport-glow) 85%, white);
+  border: 1px solid color-mix(in srgb, var(--sport-accent) 72%, white);
   border-radius: 14px;
-  background: color-mix(in srgb, var(--sport-glow) 75%, #10151d);
+  background: color-mix(in srgb, var(--sport-accent) 24%, #10151d);
   color: #fff;
   font-size: 1.35rem;
   transition: transform .25s ease, background .25s ease;
@@ -228,8 +235,8 @@ body::after {
 
 #sports .card:hover {
   transform: translateY(-6px);
-  border-color: color-mix(in srgb, var(--sport-glow) 85%, white);
-  box-shadow: 0 16px 34px rgba(0, 0, 0, .38), 0 0 24px var(--sport-glow);
+  border-color: color-mix(in srgb, var(--sport-accent) 85%, white);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, .38), 0 0 24px color-mix(in srgb, var(--sport-accent) 30%, transparent);
 }
 
 #sports .card:hover::after {
@@ -238,7 +245,7 @@ body::after {
 
 #sports .card:hover i {
   transform: translateY(-3px) rotate(-5deg);
-  background: color-mix(in srgb, var(--sport-glow) 95%, #10151d);
+  background: color-mix(in srgb, var(--sport-accent) 42%, #10151d);
 }
 
 #sports .card:focus-visible {
