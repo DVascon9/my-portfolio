@@ -180,13 +180,14 @@
 
       root.folders.forEach(folder => {
         const sport = getFolderName(folder);
-        const card = document.createElement("div");
+        const card = document.createElement("button");
 
         card.className = "card";
+        card.type = "button";
         card.innerHTML = `
           <div>
             <i class="fa-solid ${icon(sport)}"></i>
-            <div>${folderLabel(sport)}</div>
+            <span>${folderLabel(sport)}</span>
           </div>
         `;
 

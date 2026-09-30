@@ -171,6 +171,81 @@ body::after {
   margin-bottom: .4rem;
 }
 
+#sports .card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 170px;
+  border: 1px solid rgba(255, 255, 255, .1);
+  background:
+    radial-gradient(ellipse at 100% 0%, var(--sport-glow), transparent 58%),
+    linear-gradient(145deg, #19212b, #0c1118 76%);
+  transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+}
+
+#sports .card:nth-child(3n + 1) { --sport-glow: rgba(36, 190, 174, .24); }
+#sports .card:nth-child(3n + 2) { --sport-glow: rgba(255, 128, 85, .24); }
+#sports .card:nth-child(3n) { --sport-glow: rgba(244, 197, 81, .2); }
+
+#sports .card::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 115px;
+  aspect-ratio: 1;
+  top: -62px;
+  right: -34px;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 50%;
+  box-shadow: 0 0 0 16px rgba(255, 255, 255, .025), 0 0 0 32px rgba(255, 255, 255, .02);
+  transition: transform .35s ease;
+}
+
+#sports .card > div {
+  position: relative;
+  z-index: 1;
+}
+
+#sports .card i {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 1.1rem;
+  border: 1px solid color-mix(in srgb, var(--sport-glow) 85%, white);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--sport-glow) 75%, #10151d);
+  color: #fff;
+  font-size: 1.35rem;
+  transition: transform .25s ease, background .25s ease;
+}
+
+#sports .card span {
+  display: block;
+  font-size: 1.08rem;
+  font-weight: 600;
+}
+
+#sports .card:hover {
+  transform: translateY(-6px);
+  border-color: color-mix(in srgb, var(--sport-glow) 85%, white);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, .38), 0 0 24px var(--sport-glow);
+}
+
+#sports .card:hover::after {
+  transform: scale(1.16) translate(-5px, 5px);
+}
+
+#sports .card:hover i {
+  transform: translateY(-3px) rotate(-5deg);
+  background: color-mix(in srgb, var(--sport-glow) 95%, #10151d);
+}
+
+#sports .card:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
 .event-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
