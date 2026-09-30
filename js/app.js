@@ -197,8 +197,16 @@ async function buildMenu() {
     const sport = getFolderName(folder);
 
     const button = document.createElement("button");
+    button.style.setProperty("--sport-accent", sportAccent(sport));
 
-    button.textContent = folderLabel(sport);
+    const sportIcon = document.createElement("i");
+    sportIcon.className = `fa-solid ${icon(sport)}`;
+    sportIcon.setAttribute("aria-hidden", "true");
+
+    const label = document.createElement("span");
+    label.textContent = folderLabel(sport);
+
+    button.append(sportIcon, label);
 
     button.onclick = () => {
       location.href =

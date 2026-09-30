@@ -94,6 +94,41 @@ body::after {
   cursor: pointer;
 }
 
+#menuSports {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .8rem;
+  width: min(100% - 2rem, 760px);
+}
+
+#menuSports button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .65rem;
+  padding: .8rem 1.1rem;
+  border: 1px solid color-mix(in srgb, var(--sport-accent) 50%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--sport-accent) 12%, #10151d);
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: transform .2s ease, background .2s ease, border-color .2s ease;
+}
+
+#menuSports button i {
+  color: var(--sport-accent);
+  font-size: 1.05rem;
+}
+
+#menuSports button:hover,
+#menuSports button:focus-visible {
+  transform: translateY(-3px);
+  border-color: var(--sport-accent);
+  background: color-mix(in srgb, var(--sport-accent) 24%, #10151d);
+}
+
 .menu-divider {
   width: 200px;
   height: 1px;
