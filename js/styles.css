@@ -183,17 +183,6 @@ body::after {
   transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
 }
 
-#sports .card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 1.2rem;
-  right: 1.2rem;
-  height: 2px;
-  background: linear-gradient(90deg, #35dfff, #8b5cff, #f13bcb);
-  box-shadow: 0 0 14px rgba(53, 223, 255, .42);
-}
-
 #sports .card::after {
   content: "";
   position: absolute;
