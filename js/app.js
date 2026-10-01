@@ -193,11 +193,12 @@ async function buildMenu() {
 
   const root = await listR2("");
 
-  root.folders.forEach(folder => {
+  root.folders.forEach((folder, index) => {
     const sport = getFolderName(folder);
 
     const button = document.createElement("button");
     button.style.setProperty("--sport-accent", sportAccent(sport));
+    button.style.setProperty("--menu-item-delay", `${index * 55}ms`);
 
     const sportIcon = document.createElement("i");
     sportIcon.className = `fa-solid ${icon(sport)}`;
