@@ -34,6 +34,7 @@
   <script>
     const sport = qs("sport");
     document.getElementById("title").textContent = folderLabel(sport) || "Teams";
+    const isCrossCountry = /cross[\s-]?country/i.test(sport);
 
     async function load() {
       await buildMenu();
@@ -85,6 +86,7 @@
         teamBlock.className = "team";
         teamBlock.innerHTML = `
           <h3>${folderLabel(team)}</h3>
+          ${isCrossCountry ? '<p class="team-races-label">Races</p>' : ""}
           <div class="event-grid"></div>
         `;
 

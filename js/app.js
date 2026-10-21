@@ -57,7 +57,8 @@ function isMedia(file) {
 function folderLabel(name) {
   return decodeURIComponent(String(name || ""))
     .replace(/-/g, " ")
-    .replace(/\b\w/g, character => character.toUpperCase());
+    .replace(/\b\w/g, character => character.toUpperCase())
+    .replace(/'S\b/g, "'s");
 }
 
 function cleanEventName(name) {
