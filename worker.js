@@ -278,6 +278,43 @@ export default {
       );
     }
 
+    if (url.pathname === "/api/videos") {
+      if (request.method !== "GET") {
+        return Response.json(
+          { error: "Method not allowed." },
+          { status: 405 }
+        );
+      }
+
+      if (!env.GALLERIES) {
+        return Response.json(
+          { error: "Missing GALLERIES R2 binding." },
+          { status: 500 }
+        );
+      }
+
+      const prefix = "(Hidden)videos/";
+      const listed = await env.GALLERIES.list({
+        prefix,
+        delimiter: "/",
+        limit: 1000
+      });
+      const videoExtensions = /\.(mp4|mov|webm|m4v)$/i;
+      const files = (listed.objects || [])
+        .filter(object => object.key.startsWith(prefix))
+        .filter(object => !object.key.slice(prefix.length).includes("/"))
+        .filter(object => videoExtensions.test(object.key))
+        .map(object => ({
+          key: object.key,
+          name: object.key.slice(prefix.length)
+        }));
+
+      return Response.json(
+        { files },
+        { headers: { "Cache-Control": "no-store" } }
+      );
+    }
+
 
     /* =====================================================
        PRIVATE LOGIN

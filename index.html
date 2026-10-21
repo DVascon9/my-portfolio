@@ -147,9 +147,9 @@
 
     .video-feature {
       display: grid;
-      grid-template-columns: minmax(0, 1.5fr) minmax(240px, .8fr);
+      grid-template-columns: auto minmax(0, 1fr) auto;
       align-items: center;
-      gap: 2rem;
+      gap: 1rem;
       padding: clamp(1.25rem, 4vw, 2.5rem);
       border: 1px solid rgba(255, 255, 255, .1);
       border-radius: 22px;
@@ -157,6 +157,18 @@
         radial-gradient(ellipse at 0% 0%, rgba(79, 70, 229, .12), transparent 48%),
         linear-gradient(145deg, #111827, #0B101A 72%);
       box-shadow: 0 24px 60px rgba(0, 0, 0, .25);
+    }
+
+    .video-carousel-content {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(220px, .8fr);
+      align-items: center;
+      gap: 2rem;
+      min-width: 0;
+    }
+
+    .video-carousel-content .video-copy {
+      min-width: 0;
     }
 
     .video-player {
@@ -167,6 +179,62 @@
       border-radius: 16px;
       background: #05060A;
       box-shadow: 0 16px 40px rgba(0, 0, 0, .35);
+    }
+
+    .video-carousel-arrow {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border: 1px solid rgba(255, 255, 255, .2);
+      border-radius: 50%;
+      color: white;
+      background: rgba(255, 255, 255, .08);
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background .2s ease, transform .2s ease;
+    }
+
+    .video-carousel-arrow:hover,
+    .video-carousel-arrow:focus-visible {
+      transform: scale(1.06);
+      background: rgba(255, 255, 255, .18);
+    }
+
+    .video-carousel-arrow:focus-visible,
+    .video-more-link:focus-visible {
+      outline: 2px solid white;
+      outline-offset: 3px;
+    }
+
+    .video-carousel-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .video-carousel-count {
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .video-more-link {
+      display: inline-block;
+      padding: .7rem 1rem;
+      border: 1px solid rgba(255, 255, 255, .2);
+      border-radius: 10px;
+      color: white;
+      font-size: .9rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background .2s ease, border-color .2s ease;
+    }
+
+    .video-more-link:hover {
+      border-color: rgba(255, 255, 255, .45);
+      background: rgba(255, 255, 255, .08);
     }
 
     .video-copy .eyebrow {
@@ -200,8 +268,24 @@
       }
 
       .video-feature {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        gap: .5rem;
+        padding: 1rem;
+      }
+
+      .video-carousel-content {
         grid-template-columns: 1fr;
-        gap: 1.5rem;
+        gap: 1.25rem;
+      }
+
+      .video-carousel-arrow {
+        width: 36px;
+        height: 36px;
+      }
+
+      .video-carousel-footer {
+        align-items: flex-start;
+        flex-direction: column;
       }
     }
 
@@ -321,23 +405,21 @@
     <p class="eyebrow">Motion &amp; moments</p>
     <h2 id="video-work-title">Video work</h2>
     <p class="video-intro">A selection of video projects I've worked on.</p>
-    <article class="video-feature">
-      <video
-        class="video-player"
-        controls
-        playsinline
-        preload="metadata"
-        aria-label="Creighton WBB Tunnel Walk video"
-      >
-        <source src="/api/media?key=%28Hidden%29videos%2FCreighton%20WBB%20Tunnel%20Walk%20video_DV_Prod.mp4" type="video/mp4">
-        Your browser does not support embedded videos.
-      </video>
-      <div class="video-copy">
-        <p class="eyebrow">Featured video</p>
-        <h3>Creighton WBB Tunnel Walk</h3>
-        <p>A look at Creighton Women's Basketball on the way to the court.</p>
+    <article class="video-feature" aria-label="Video work carousel">
+      <button class="video-carousel-arrow" id="videoPrevious" type="button" aria-label="Previous video">
+        <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+      </button>
+      <div class="video-carousel-content" id="videoCarousel" aria-live="polite">
+        <p class="video-intro">Loading videos...</p>
       </div>
+      <button class="video-carousel-arrow" id="videoNext" type="button" aria-label="Next video">
+        <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+      </button>
     </article>
+    <div class="video-carousel-footer">
+      <span class="video-carousel-count" id="videoCarouselCount" aria-live="polite"></span>
+      <a class="video-more-link" href="video-work.html">View more videos</a>
+    </div>
   </section>
 
   <section class="documentary-section" aria-labelledby="documentary-title">
@@ -471,6 +553,91 @@
     });
 
     loadSearchIndex();
+
+    const videoCarousel = document.getElementById("videoCarousel");
+    const videoCarouselCount = document.getElementById("videoCarouselCount");
+    let videoItems = [];
+    let activeVideoIndex = 0;
+
+    function renderVideoCarousel() {
+      videoCarousel.replaceChildren();
+
+      if (!videoItems.length) {
+        videoCarousel.innerHTML = '<p class="video-intro">No videos have been added yet.</p>';
+        videoCarouselCount.textContent = "";
+        return;
+      }
+
+      const item = videoItems[activeVideoIndex];
+      const copy = document.createElement("div");
+      copy.className = "video-copy";
+
+      const eyebrow = document.createElement("p");
+      eyebrow.className = "eyebrow";
+      eyebrow.textContent = item.featured ? "Featured video" : "Video work";
+
+      const title = document.createElement("h3");
+      title.textContent = item.title;
+
+      copy.append(eyebrow, title);
+
+      if (item.description) {
+        const description = document.createElement("p");
+        description.textContent = item.description;
+        copy.appendChild(description);
+      }
+
+      if (item.type === "file") {
+        const player = document.createElement("video");
+        player.className = "video-player";
+        player.controls = true;
+        player.playsInline = true;
+        player.preload = "metadata";
+        player.setAttribute("aria-label", item.title);
+
+        const source = document.createElement("source");
+        source.src = item.src;
+        source.type = videoMimeType(item.key);
+        player.appendChild(source);
+        videoCarousel.append(player, copy);
+      } else {
+        const linkCard = document.createElement("a");
+        linkCard.className = "video-link-card";
+        linkCard.href = item.url;
+        linkCard.target = "_blank";
+        linkCard.rel = "noopener noreferrer";
+        linkCard.innerHTML = '<i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i><span>Watch video</span>';
+        videoCarousel.append(linkCard, copy);
+      }
+
+      videoCarouselCount.textContent =
+        `${activeVideoIndex + 1} / ${videoItems.length}`;
+    }
+
+    function moveVideoCarousel(direction) {
+      if (!videoItems.length) return;
+      activeVideoIndex =
+        (activeVideoIndex + direction + videoItems.length) % videoItems.length;
+      renderVideoCarousel();
+    }
+
+    document.getElementById("videoPrevious").addEventListener("click", () => {
+      moveVideoCarousel(-1);
+    });
+    document.getElementById("videoNext").addEventListener("click", () => {
+      moveVideoCarousel(1);
+    });
+
+    loadVideoWork()
+      .then(items => {
+        videoItems = items;
+        renderVideoCarousel();
+      })
+      .catch(error => {
+        console.error(error);
+        videoCarousel.textContent = "Videos could not be loaded right now.";
+        videoCarouselCount.textContent = "";
+      });
 
     const featuredSlides = [
       { src: "assets/vs_Butler_DVascon_prod16.jpg", alt: "Sports action photo from Butler" },

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Video Work | DVascon Productions</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="js/styles.css">
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</head>
+<body>
+  <div class="nav">
+    <a class="brand" href="index.html">
+      <img src="assets/DVascon_Productions_Logo.png" alt="DVascon Productions logo">
+      <h1 data-site-title>DVascon Productions</h1>
+    </a>
+    <i class="fa-solid fa-bars burger" onclick="toggleMenu()"></i>
+  </div>
+
+  <div class="menu" id="menu">
+    <div id="menuSports"></div>
+    <div class="menu-divider"></div>
+    <a data-contact target="_blank" class="contact-btn">Contact</a>
+    <a href="inquiry.html" class="contact-btn">Schedule a Shoot</a>
+  </div>
+
+  <main class="video-work-page">
+    <a href="index.html" class="back">← Back</a>
+    <p class="eyebrow">Motion &amp; moments</p>
+    <h2>Video work</h2>
+    <p class="video-work-intro">A collection of video projects I've worked on.</p>
+    <div class="video-work-grid" id="videoWorkGrid" aria-live="polite">
+      <p class="video-work-intro">Loading videos...</p>
+    </div>
+  </main>
+
+  <script>
+    const videoWorkGrid = document.getElementById("videoWorkGrid");
+
+    function renderVideoWork(items) {
+      videoWorkGrid.replaceChildren();
+
+      if (!items.length) {
+        const message = document.createElement("p");
+        message.className = "video-work-intro";
+        message.textContent = "No videos have been added yet.";
+        videoWorkGrid.appendChild(message);
+        return;
+      }
+
+      items.forEach(item => {
+        const card = document.createElement("article");
+        card.className = "video-work-card";
+
+        if (item.type === "file") {
+          const player = document.createElement("video");
+          player.className = "video-work-player";
+          player.controls = true;
+          player.playsInline = true;
+          player.preload = "metadata";
+          player.setAttribute("aria-label", item.title);
+
+          const source = document.createElement("source");
+          source.src = item.src;
+          source.type = videoMimeType(item.key);
+          player.appendChild(source);
+          card.appendChild(player);
+        } else {
+          const linkCard = document.createElement("a");
+          linkCard.className = "video-work-external";
+          linkCard.href = item.url;
+          linkCard.target = "_blank";
+          linkCard.rel = "noopener noreferrer";
+          linkCard.innerHTML = '<i class="fa-solid fa-circle-play" aria-hidden="true"></i><span>Watch video</span>';
+          card.appendChild(linkCard);
+        }
+
+        const copy = document.createElement("div");
+        copy.className = "video-work-copy";
+        const title = document.createElement("h3");
+        title.textContent = item.title;
+        copy.appendChild(title);
+
+        if (item.description) {
+          const description = document.createElement("p");
+          description.textContent = item.description;
+          copy.appendChild(description);
+        }
+
+        card.appendChild(copy);
+        videoWorkGrid.appendChild(card);
+      });
+    }
+
+    buildMenu().catch(error => {
+      console.error(error);
+    });
+
+    loadVideoWork()
+      .then(renderVideoWork)
+      .catch(error => {
+        console.error(error);
+        videoWorkGrid.textContent = "Videos could not be loaded right now.";
+      });
+  </script>
+</body>
+</html>

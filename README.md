@@ -51,3 +51,21 @@ js/config.js
 ```
 
 Make sure `MEDIA_BASE_URL` is your R2 Public Development URL.
+
+## Video work
+
+Add video files directly inside the `(Hidden)videos/` folder in the `galleries` R2 bucket. Supported formats are MP4, MOV, WebM, and M4V. The Video Work carousel and page list these files automatically.
+
+To add externally hosted videos, add entries to `VIDEO_LINKS` in `js/config.js`:
+
+```js
+const VIDEO_LINKS = [
+  {
+    title: "Project title",
+    url: "https://example.com/video",
+    description: "Optional description."
+  }
+];
+```
+
+The dedicated `/video-work.html` page includes both hosted files and links. Videos in `(Hidden)videos/` are intentionally exposed by the dedicated video listing endpoint; other `(Hidden)` folders remain excluded.

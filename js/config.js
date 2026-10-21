@@ -8,3 +8,11 @@ const MEDIA_ROOT = "";
 
 const SITE_TITLE = "DVascon Productions";
 const CONTACT_URL = "https://dot.cards/dvascon_productions";
+
+const FEATURED_VIDEO = {
+  key: "(Hidden)videos/Creighton WBB Tunnel Walk video_DV_Prod.mp4",
+  title: "Creighton WBB Tunnel Walk",
+  description: "A look at Creighton Women's Basketball on the way to the court."
+};
+
+const VIDEO_LINKS = [];

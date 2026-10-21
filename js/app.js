@@ -50,6 +50,18 @@ function isVideo(file) {
   return VIDEO_EXTENSIONS.test(file);
 }
 
+function videoMimeType(file) {
+  const extension = String(file || "").split(".").pop().toLowerCase();
+  const mimeTypes = {
+    mp4: "video/mp4",
+    m4v: "video/mp4",
+    mov: "video/quicktime",
+    webm: "video/webm"
+  };
+
+  return mimeTypes[extension] || "application/octet-stream";
+}
+
 function isMedia(file) {
   return MEDIA_EXTENSIONS.test(file);
 }
@@ -169,6 +181,56 @@ async function listR2(prefix = "") {
   }
 
   return response.json();
+}
+
+async function loadVideoWork() {
+  const response = await fetch("/api/videos", {
+    cache: "no-store"
+  });
+
+  if (!response.ok) {
+    throw new Error("Could not load video work.");
+  }
+
+  const data = await response.json();
+
+  if (!Array.isArray(data.files)) {
+    throw new Error("The video list returned an invalid response.");
+  }
+
+  const files = data.files.map(file => {
+    const isFeatured = file.key === FEATURED_VIDEO.key;
+    const title = file.name.replace(/\.(mp4|mov|webm|m4v)$/i, "");
+
+    return {
+      type: "file",
+      key: file.key,
+      src: mediaUrl(file.key),
+      title: isFeatured ? FEATURED_VIDEO.title : title.replace(/[_-]+/g, " "),
+      description: isFeatured ? FEATURED_VIDEO.description : "",
+      featured: isFeatured
+    };
+  });
+
+  const links = VIDEO_LINKS.map(link => {
+    const url = new URL(link.url);
+
+    if (url.protocol !== "https:") {
+      throw new Error(`Video link must use HTTPS: ${link.title}`);
+    }
+
+    return {
+      type: "link",
+      title: link.title,
+      description: link.description || "",
+      url: url.href,
+      featured: false
+    };
+  });
+
+  return [...files, ...links].sort((a, b) =>
+    Number(b.featured) - Number(a.featured) || a.title.localeCompare(b.title)
+  );
 }
 
 
