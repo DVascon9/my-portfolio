@@ -210,14 +210,9 @@
     .video-carousel-footer {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-end;
       gap: 1rem;
       margin-top: 1rem;
-    }
-
-    .video-carousel-count {
-      color: var(--muted);
-      font-size: .9rem;
     }
 
     .video-more-link {
@@ -417,7 +412,6 @@
       </button>
     </article>
     <div class="video-carousel-footer">
-      <span class="video-carousel-count" id="videoCarouselCount" aria-live="polite"></span>
       <a class="video-more-link" href="video-work.html">View more videos</a>
     </div>
   </section>
@@ -555,7 +549,6 @@
     loadSearchIndex();
 
     const videoCarousel = document.getElementById("videoCarousel");
-    const videoCarouselCount = document.getElementById("videoCarouselCount");
     let videoItems = [];
     let activeVideoIndex = 0;
 
@@ -564,7 +557,6 @@
 
       if (!videoItems.length) {
         videoCarousel.innerHTML = '<p class="video-intro">No videos have been added yet.</p>';
-        videoCarouselCount.textContent = "";
         return;
       }
 
@@ -610,8 +602,6 @@
         videoCarousel.append(linkCard, copy);
       }
 
-      videoCarouselCount.textContent =
-        `${activeVideoIndex + 1} / ${videoItems.length}`;
     }
 
     function moveVideoCarousel(direction) {
@@ -636,7 +626,6 @@
       .catch(error => {
         console.error(error);
         videoCarousel.textContent = "Videos could not be loaded right now.";
-        videoCarouselCount.textContent = "";
       });
 
     const featuredSlides = [
