@@ -4,6 +4,13 @@ export async function onRequestGet({ request, env }) {
 
   prefix = prefix.replace(/^\/+/, "");
 
+  if (prefix.split("/").some(segment => segment.startsWith("(Hidden)"))) {
+    return Response.json(
+      { error: "Hidden content." },
+      { status: 404 }
+    );
+  }
+
   if (prefix && !prefix.endsWith("/")) {
     prefix += "/";
   }
@@ -20,12 +27,16 @@ export async function onRequestGet({ request, env }) {
     delimiter: "/",
     limit: 1000
   });
+  const isVisiblePath = path =>
+    !path
+      .split("/")
+      .some(segment => segment.startsWith("(Hidden)"));
 
   return Response.json(
     {
       prefix,
-      folders: listed.delimitedPrefixes || [],
-      files: (listed.objects || []).map(object => ({
+      folders: (listed.delimitedPrefixes || []).filter(isVisiblePath),
+      files: (listed.objects || []).filter(object => isVisiblePath(object.key)).map(object => ({
         key: object.key,
         name: object.key.split("/").pop(),
         size: object.size,

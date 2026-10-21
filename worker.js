@@ -788,6 +788,15 @@ export default {
             folder =>
               folder !==
               "Private/"
+          )
+
+          .filter(
+            folder =>
+              !folder
+                .split("/")
+                .some(segment =>
+                  segment.startsWith("(Hidden)")
+                )
           );
 
       for (
@@ -896,6 +905,22 @@ export default {
           ""
         );
 
+      if (
+        prefix
+          .split("/")
+          .some(segment =>
+            segment.startsWith("(Hidden)")
+          )
+      ) {
+        return Response.json(
+          {
+            error:
+              "Hidden content."
+          },
+          { status: 404 }
+        );
+      }
+
       // Completely block direct access
       // to Private content.
       if (
@@ -961,6 +986,16 @@ export default {
       }
 
       folders =
+        folders.filter(
+          folder =>
+            !folder
+              .split("/")
+              .some(segment =>
+                segment.startsWith("(Hidden)")
+              )
+        );
+
+      folders =
         folders.sort().reverse();
 
       const files =
@@ -979,6 +1014,15 @@ export default {
                 .split("/")
                 .pop()
                 .startsWith(".")
+          )
+
+          .filter(
+            object =>
+              !object.key
+                .split("/")
+                .some(segment =>
+                  segment.startsWith("(Hidden)")
+                )
           )
 
           .map(object => ({

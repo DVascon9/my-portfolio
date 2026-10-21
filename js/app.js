@@ -106,6 +106,10 @@ function icon(name) {
     return "fa-futbol";
   }
 
+  if (normalized.includes("track") || normalized.includes("cross country")) {
+    return "fa-person-running";
+  }
+
   return "fa-camera";
 }
 
@@ -117,6 +121,7 @@ function sportAccent(name) {
   if (normalized.includes("baseball") || normalized.includes("softball")) return "#FF5A79";
   if (normalized.includes("tennis")) return "#A7E85D";
   if (normalized.includes("soccer") || normalized.includes("football")) return "#52D6A0";
+  if (normalized.includes("track") || normalized.includes("cross country")) return "#F59E0B";
 
   return "#F13BCB";
 }
