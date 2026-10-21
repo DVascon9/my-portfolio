@@ -427,25 +427,58 @@ export default {
       "/api/private-folders"
     ) {
 
+      if (!env.GALLERIES) {
+        return Response.json(
+          { error: "Missing GALLERIES R2 binding." },
+          { status: 500 }
+        );
+      }
+
       const passwords =
         getPrivatePasswords(env);
 
+      const folderPrefixes = [];
+      let cursor;
+      let truncated;
+
+      do {
+        const listed =
+          await env.GALLERIES.list({
+            prefix: "Private/",
+            delimiter: "/",
+            limit: 1000,
+            cursor
+          });
+
+        folderPrefixes.push(
+          ...(listed.delimitedPrefixes || [])
+        );
+        cursor = listed.cursor;
+        truncated = listed.truncated;
+      } while (truncated);
+
       const folders =
-        Object.keys(passwords)
+        [...new Set(folderPrefixes)]
+          .map(prefix =>
+            prefix.replace(/\/$/, "")
+          )
+          .filter(folder =>
+            Object.prototype.hasOwnProperty.call(
+              passwords,
+              folder
+            )
+          )
           .map(folder => ({
-
             key: folder,
-
-            name:
-              folder.replace(
-                /^Private\//,
-                ""
-              )
-
+            name: folder.replace(/^Private\//, "")
           }));
 
       return Response.json({
         folders
+      }, {
+        headers: {
+          "Cache-Control": "no-store"
+        }
       });
     }
 

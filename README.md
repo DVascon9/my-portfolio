@@ -42,6 +42,31 @@ Bucket: galleries
 
 Then redeploy.
 
+## Private galleries
+
+Create one folder per private gallery under `Private/` in the `galleries` R2
+bucket. Put each gallery's media directly inside its folder:
+
+```text
+Private/
+  client-name/
+    photo-001.jpg
+    photo-002.jpg
+```
+
+The Private Galleries page discovers folders under `Private/`. To make a
+gallery available, add its exact R2 folder path as a key in the Cloudflare
+`PRIVATE_PASSWORDS` secret and assign its password:
+
+```json
+{
+  "Private/client-name": "gallery-password"
+}
+```
+
+Folders without a matching password entry are not shown. Keep this secret
+configured in Cloudflare; do not put gallery passwords in website files.
+
 ## Config
 
 Open:
