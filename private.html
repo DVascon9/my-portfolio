@@ -42,8 +42,114 @@
       color: white;
     }
 
+    .private-background {
+
+      position: fixed;
+
+      inset: 0;
+
+      z-index: 0;
+
+      overflow: hidden;
+
+      pointer-events: none;
+
+      background: #050608;
+
+    }
+
+
+    .private-background::before,
+    .private-background::after {
+
+      content: "";
+
+      position: absolute;
+
+      inset: 0;
+
+    }
+
+
+    .private-background::before {
+
+      inset: -20%;
+
+      background:
+        radial-gradient(
+          ellipse at 25% 25%,
+          rgba(37,99,235,.16),
+          transparent 42%
+        ),
+        radial-gradient(
+          ellipse at 78% 70%,
+          rgba(14,165,233,.1),
+          transparent 38%
+        ),
+        radial-gradient(
+          ellipse at 60% 0%,
+          rgba(255,255,255,.035),
+          transparent 40%
+        );
+
+      animation:
+        privateGlowDrift 30s ease-in-out infinite alternate;
+
+      will-change: transform;
+
+    }
+
+
+    .private-background::after {
+
+      opacity: .12;
+
+      background-image:
+        repeating-linear-gradient(
+          0deg,
+          rgba(255,255,255,.12) 0,
+          rgba(255,255,255,.12) 1px,
+          transparent 1px,
+          transparent 3px
+        ),
+        repeating-linear-gradient(
+          90deg,
+          rgba(255,255,255,.08) 0,
+          rgba(255,255,255,.08) 1px,
+          transparent 1px,
+          transparent 3px
+        );
+
+      mask-image:
+        linear-gradient(
+          to bottom,
+          transparent,
+          black 18%,
+          black 85%,
+          transparent
+        );
+
+    }
+
+
+    @keyframes privateGlowDrift {
+
+      from {
+        transform: translate3d(-2%, -1%, 0) scale(1);
+      }
+
+      to {
+        transform: translate3d(2%, 1%, 0) scale(1.06);
+      }
+
+    }
+
 
     .private-page {
+
+      position: relative;
+
+      z-index: 1;
 
       min-height: calc(100vh - 70px);
 
@@ -56,6 +162,15 @@
       margin: auto;
 
       box-sizing: border-box;
+
+    }
+
+
+    @media (prefers-reduced-motion: reduce) {
+
+      .private-background::before {
+        animation: none;
+      }
 
     }
 
@@ -777,6 +892,11 @@
 
 
 <body>
+
+  <div
+    class="private-background"
+    aria-hidden="true"
+  ></div>
 
 
   <!-- =====================================================
